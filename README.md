@@ -6,26 +6,21 @@ Copyright 2024 U-Prox by Oleh Cherkes
 
 Permission is hereby granted, to the employees of U-Prox company.
 
-
-
 * [Overview](#chapter-0)
 * [Transport part](#chapter-1)
 * [Command part](#chapter-2)
 * [Examples of using commands](#chapter-3)
-  * [GET_STATE](#chapter-4)
-  * [RESPONSE_STATE](#chapter-5)
-  * [LED_RED](#chapter-6)
-  * [LED_GREEN](#chapter-7)
-  * [BUZZER](#chapter-8)
-  * [SET_TIME](#chapter-9)
-  * [ACK](#chapter-10)
-  * [MODEM_DTR](#chapter-11)
-  * [POWER](#chapter-12)
-  * [WATCHDOG](#chapter-13)
-  * [ACK_FW](#chapter-14)
-  * [MODEM_SIM](#chapter-15)
-* [Reply](#chapter-16)
-* [Optional structures](#chapter-17)
+  * [ECHO](#chapter-4)
+  * [ACK](#chapter-5)
+  * [TEST_MODE](#chapter-6)
+  * [LED_RED](#chapter-7)
+  * [LED_GREEN](#chapter-8)
+  * [BUZZER](#chapter-9)
+  * [SET_TIME](#chapter-10)
+  * [POWER](#chapter-11)
+  
+* [Reply](#chapter-12)
+* [Optional structures](#chapter-13)
 
 <a id="chapter-0"></a>
 Overview
@@ -48,45 +43,67 @@ Commands part
 ===============================================================================================================================
 
 ```markdown
-  GET_STATE         = 0x07
-  RESPONSE_STATE    = 0x08
+  ECHO              = 0x00
+  ACK               = 0x01
+  TEST_MODE         = 0x02
   LED_RED           = 0x09
   LED_GREEN         = 0x0A
   BUZZER            = 0x0B
   SET_TIME          = 0x0C
-  ACK               = 0x0D
-  MODEM_DTR         = 0x0E
   POWER             = 0x0F
-  WATCHDOG          = 0x10
-  ACK_FW            = 0x11
-  MODEM_SIM         = 0x12
   ```
 
-<a id="chapter-2"></a>
+<a id="chapter-3"></a>
 Examples of using commands
 =============================================================================================================================== 
+
 <a id="chapter-4"></a>
-**GET_STATE**       0x07
+**ECHO**              0x00
+
+Start/End TestMode
 ```markdown
-  [MAGIC:3][LENGTH:1][GET_STATE:1][CRC8:1]
+  [MAGIC:3][LENGTH:1][ECHO:1][CRC8:1]
 ```
-  * After sending this command, the device under test sends a response with a description of the device state, various parameters and flags.
-    - version
-    - time
-    - bat
-    - modem DCD
-    - modem status
-    - tamper
-    - power
-    - power key
-    - pwm Red Led
-    - pwm Green Led
-    - buzzer Red Led
+---------------------------------
+
+<a id="chapter-5"></a>
+**ACK**              0x01
+
+Start/End TestMode
+```markdown
+  [MAGIC:3][LENGTH:1][ACK:1][ATE401State:sizeoff(ATE401State)][CRC8:1]
+```
+
+After sending this command, the device under test sends a response with a description of the device state, various parameters and flags.
+    
+[ATE401State structure ](#chapter-13)
+  - version
+  - time
+  - bat
+  - tamper
+  - power
+  - power key
+  - Red Led
+  - Green Led
+  - buzzer
+
+
 
 ---------------------------------
 
 <a id="chapter-6"></a>
-???
+**TEST_MODE**         0x02
+
+Start/End TestMode
+```markdown
+  [MAGIC:3][LENGTH:1][TEST_MODE:1][ATE_PARAM:1][CRC8:1]
+```
+* ATE_PARAM
+    * OFF = 0
+    * ON = 1
+---------------------------------
+
+<a id="chapter-7"></a>
 **LED_RED**           0x09
 ```markdown
   [MAGIC:3][LENGTH:1][LED_RED:1][STATE:1][CRC8:1]
@@ -96,7 +113,7 @@ Examples of using commands
     * ON = 1
 ---------------------------------
 
-<a id="chapter-7"></a>
+<a id="chapter-8"></a>
 **LED_GREEN**         0x0A
 ```markdown
   [MAGIC:3][LENGTH:1][LED_GREEN:1][STATE:1][CRC8:1]
@@ -106,7 +123,7 @@ Examples of using commands
     * ON = 1
 ---------------------------------
 
-<a id="chapter-8"></a>
+<a id="chapter-9"></a>
 **BUZZER**           0x0B
 ```markdown
   [MAGIC:3][LENGTH:1][BUZZER:1][STATE:1][CRC8:1]
@@ -130,7 +147,7 @@ Examples of using commands
     ** count intervals == 0 (infinity repeate)
 ---------------------------------
 
-<a id="chapter-9"></a>
+<a id="chapter-10"></a>
 **SET_TIME**         0x0С
 
 ```markdown
@@ -150,29 +167,7 @@ time_bytes[3] = (time_le >> 24) & 0xFF;
 ```
 ---------------------------------
 
-<a id="chapter-10"></a>
-???
-**ACK**               0x0D
-
-ACK response ESP32 to any data from Raspberry Pi
-```markdown
-  [MAGIC:3][LENGTH:1][ACK:1][STATUS ???][CRC8:1]
-```
----------------------------------
-
 <a id="chapter-11"></a>
-**MODEM_DTR**          0x0E
-
-```markdown
-  [MAGIC:3][LENGTH:1][MODEM_DTR:1][STATE:1][CRC8:1]
-```
-
-  * STATE
-    * OFF = HIGH
-    * ON = LOW
----------------------------------
-
-<a id="chapter-12"></a>
 **POWER**             0x0F
 
 POWER **OFF** after delay in ms
@@ -188,106 +183,52 @@ uint8_t byte2 = (value >> 8) & 0xFF;
 ```
 ---------------------------------
 
-<a id="chapter-13"></a>
-**WATCHDOG**          0x10
-
-WATCHDOG **OFF** after delay in sec
-
-```markdown
-  [MAGIC:3][LENGTH:1][WATCHDOG:1][TIME_SEC:2][CRC8:1]
-```
-
-  * TIME_SEC
-    * OFF = 0
-    * Time keepalive in sec = !0 
----------------------------------
-
-<a id="chapter-14"></a>
-**ACK_FW**             0x11
-
-ACK_FW firmware update result response ESP32 to any data from Raspberry Pi
-
-```markdown
-  [MAGIC:3][LENGTH:1][ACK_FW:1][STATE:1][CRC8:1]
-```
-
-  * STATE
-    * SUCCES = 0
-    * ERROR = !0 
----------------------------------
-
-<a id="chapter-15"></a>
-???
-**MODEM_SIM**           0x12
-
-Modem **power ON**
-
-```markdown
-  [MAGIC:3][LENGTH:1][MODEM_SIM:1][SIM_CARD:1][CRC8:1]
-```
-
-  * STATE
-    * SimCard = 0x00
----------------------------------
-
-<a id="chapter-16"></a>
+<a id="chapter-12"></a>
 Reply
 ===============================================================================================================================
 Upon successful delivery and reading of the command, the testing equipment provides a response indicating either success or failure.
 
-Response to the command **GET_STATE 0x07**, you will receive a data packet of this format.
+Response to the command **ACK 0x01**, you will receive a data packet of this format.
 
-<a id="chapter-5"></a>
-???
-**RESPONSE_STATE**    0x08
-```markdown
-  [MAGIC:3][LENGTH:1][RESPONSE_STATE:1][CRC8:1]
-```
+<a id="chapter-13"></a>
 The data will come in the form of a structure:
 ```c++
 struct ATE401State {
-    uint8_t version[2];       // version
-    uint8_t time[4];          // time, uint32_t   : le, sec from last start
-    uint8_t mvbat[2];         // bat, uint16_t    : le, in mV, 0 == battary absent
-    
-    uint8_t modemDCD : 1;     // modem DCD        : 1 == HIGH, 0 == LOW
-    uint8_t resedved_1 : 1;   // reserved         : 1 == HIGH, 0 == LOW
-    uint8_t modemStatus : 1;  // modem status     : 1 == HIGH, 0 == LOW
-    uint8_t tamper : 1;       // tamper           : 1 == HIGH, 0 == LOW
-    uint8_t mvbus : 1;        // power            : 1 == POWER ON, 0 == POWER OFF
-    uint8_t powerKey : 1;     // power key        : 1 == HIGH, 0 == LOW
-    uint8_t resedved_6_7 : 2; // reserved         : 1 == HIGH, 0 == LOW
-    
-    uint8_t pwmRed : 1;       // pwm Red Led      : 1 == Progress, 0 == LOW
-    uint8_t pwmGreen : 1;     // pwm Green Led    : 1 == Progress, 0 == LOW
-    uint8_t buzzer : 1;       // buzzer Red Led   : 1 == Progress, 0 == LOW
+    uint8_t mvbus : 1;        // power HUB    : normal
+    uint8_t mvbat : 1;        // bat   HUB    : normal
+    uint8_t gsm_sim_det : 1;  // modem        : sim card present
+    uint8_t gsm_register : 1; // modem        : registered
+    uint8_t boff : 1;         // HUB power key: pressed
+    uint8_t tamper : 1;       // HUB tamper   : normal
+    uint8_t rf0 : 1;          // error
+    uint8_t rf1 : 1;          // error
+    uint8_t eth : 1;          // error
+    uint8_t ethLink : 1;      // eth link     : normal
+    uint8_t wifiConnect : 1;  // eth link     : normal
+    uint8_t wifiRssi;         // bat voltage in mV
+    uint8_t gsmRssi;          // bat voltage in mV
+
+    uint8_t batMv[2];         // bat voltage in mV
+    uint8_t ethIp[4];         // ip over ethernet
+    uint8_t wifiIp[4];        // ip over wifi
   };
 ```
-<a id="chapter-7"></a>
+
+<a id="chapter-14"></a>
 Optional structures
 ===============================================================================================================================
 
 ```c++
   enum class PiATE401Cmd : uint8_t
   {
-    MODEM_POWER = 0x01,
-    MODEM_POWERKEY = 0x02,
-    SRD = 0x03,
-    ETH = 0x04,
-    FW = 0x05,
-    FW_CRC = 0x06,
-    GET_STATE = 0x07,
-    RESPONSE_STATE = 0x08,
+    ECHO = 0x00,
+    ACK = 0x01,
+    TEST_MODE = 0x02,
     LED_RED = 0x09,
     LED_GREEN = 0x0A,
     BUZZER = 0x0B,
     SET_TIME = 0x0C,
-    ACK = 0x0D,
-    MODEM_DTR = 0x0E,
     POWER = 0x0F,
-    WATCHDOG = 0x10,
-    ACK_FW = 0x11,
-    MODEM_SIM = 0x12,
   };
 ```
 ```c++
