@@ -86,9 +86,6 @@ After sending this command, the device under test sends a response with a descri
   - Red Led
   - Green Led
   - buzzer
-
-
-
 ---------------------------------
 
 <a id="chapter-6"></a>
@@ -232,14 +229,14 @@ Optional structures
   };
 ```
 ```c++
-  enum class PiATE401Param : uint8_t
+  enum class ATE401Param : uint8_t
   {
     OFF = 0,
     ON = 1,
   };
 ```
 ```c++
-  enum class PiATE401Indicate : uint8_t
+  enum class ATE401Indicate : uint8_t
   {
     OFF = 0,
     ON = 1,
@@ -248,7 +245,7 @@ Optional structures
   };
 ```
 ```c++
-  struct PiATE401Pwm
+  struct ATE401Pwm
   {
     uint8_t startLevel;
     uint8_t endLevel;
@@ -256,7 +253,7 @@ Optional structures
   };
 ```
 ```c++
-  struct PiATE401Blink
+  struct ATE401Blink
   {
     // count intervals == 0 (infinity repeate)
     uint16_t count;
