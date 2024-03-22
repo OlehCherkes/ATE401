@@ -8,7 +8,7 @@ int main(void)
   // test
   std::vector<uint8_t> data = { 0x23, 0x40, 0x21, 0x07, 0x09, 0x01 };
 
-  uint8_t crcResult = calculateCRC8(data);
+  uint8_t crcResult = calculateCRC8(data.data(), data.size());
 
   std::cout << "CRC8: 0x" << std::hex << static_cast<int>(crcResult) << std::endl;
 
@@ -18,7 +18,7 @@ int main(void)
  //----------------------- PACK -------------------------------
   std::cout << std::endl;
 
-  std::vector <uint8_t> res = packed({ LED_RED, STATE_ON });
+  std::vector<uint8_t> res = packed({ LED_RED, static_cast<uint8_t>(ATE401Indicate::ON) });
 
   std::cout << "Packed elements:" << std::endl;
   for (const auto& element : res) {
@@ -33,6 +33,9 @@ int main(void)
   if (checkCRC8Pack(res))
   {
     res = unpacked(res);
+
+    mode = ate401_parser(res);
+    std::cout << "RED_LED: " << static_cast<int>(mode.led.red) << std::endl;
 
     std::cout << "Unpacked elements:" << std::endl;
     for (const auto& element : res) {

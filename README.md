@@ -154,13 +154,21 @@ Start/End TestMode
 Used [UnixTime](https://en.wikipedia.org/wiki/Unix_time)
 
 ```markdown
-uint32_t time_le = 1616183220; // time Little-Endian format
+// Packing time to Little-Endian format
+uint32_t time_le = 1616183220; 
 uint8_t time_bytes[4];
 
 time_bytes[0] = (time_le >> 0) & 0xFF;
 time_bytes[1] = (time_le >> 8) & 0xFF;
 time_bytes[2] = (time_le >> 16) & 0xFF;
 time_bytes[3] = (time_le >> 24) & 0xFF;
+
+// Unpacking from Little-Endian format to uint32_t
+uint32_t time_le =
+    (static_cast<uint32_t>(time_bytes[0]) << 0) |
+    (static_cast<uint32_t>(time_bytes[1]) << 8) |
+    (static_cast<uint32_t>(time_bytes[2]) << 16) |
+    (static_cast<uint32_t>(time_bytes[3]) << 24);
 ```
 ---------------------------------
 
@@ -172,11 +180,13 @@ POWER **OFF** after delay in ms
   [MAGIC:3][LENGTH:1][POWER:1][DELAY_MS:2||Little-Endian][CRC8:1]
 ```
 ```markdown
-// delay ms Little-Endian format
-
+// Packing delay ms to Little-Endian format
 uint16_t value = 1000;
 uint8_t byte1 = value & 0xFF;
 uint8_t byte2 = (value >> 8) & 0xFF;
+
+// Unpacking delay ms from Little-Endian format to uint16_t
+uint16_t value = (static_cast<uint32_t>(time_bytes[0]) << 0) | (static_cast<uint32_t>(time_bytes[1]) << 8);
 ```
 ---------------------------------
 

@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <vector>
 #include <cstdarg>
+#include <iterator>
 #include "ate401.h"
 
 /*=====================================================
@@ -13,6 +14,8 @@ Packets struct :
 ======================================================*/
 
 const std::string MAGIC = "#@!";
+
+Mode mode{};
 
 // This is the CRC8 polynomial x^8 + x^2 + x^1 + 1 (0x07)
 const uint8_t crc8Table[256] = {
@@ -34,11 +37,11 @@ const uint8_t crc8Table[256] = {
     0xDE, 0xD9, 0xD0, 0xD7, 0xC2, 0xC5, 0xCC, 0xCB, 0xE6, 0xE1, 0xE8, 0xEF, 0xFA, 0xFD, 0xF4, 0xF3,
 };
 
-uint8_t calculateCRC8(const std::vector<uint8_t>& data) {
+uint8_t calculateCRC8(uint8_t* data, size_t len) {
   uint8_t crc = 0;
 
-  for (const auto& i : data) {
-    crc = crc8Table[crc ^ i];
+  for (int i = 0; i < len; ++i) {
+    crc = crc8Table[crc ^ data[i]];
   }
 
   return crc;
@@ -56,13 +59,15 @@ bool checkCRC8(const std::vector<uint8_t>& data, uint8_t expectedCRC) {
 
 std::vector<uint8_t> packed(std::initializer_list<uint8_t> args)
 {
-  std::vector<uint8_t> data(std::begin(MAGIC), std::end(MAGIC));
-  data.insert(data.end(), args.begin(), args.end());
+  std::vector<uint8_t> data;
+  data.reserve(MAGIC.size() + args.size() + 2); // memory reservation, +2 bytes lenght and crc 
 
-  uint8_t len = data.size() + 2; // 2 bites lenght and crc 
-  data.insert(data.begin() + MAGIC.size(), len);
+  std::copy(std::begin(MAGIC), std::end(MAGIC), std::back_inserter(data));
+  std::copy(std::begin(args), std::end(args), std::back_inserter(data));
 
-  uint8_t crcResult = calculateCRC8(data);
+  data.insert(data.begin() + MAGIC.size(), data.size());
+
+  uint8_t crcResult = calculateCRC8(data.data(), data.size());
   data.push_back(crcResult);
 
   return data;
@@ -70,8 +75,8 @@ std::vector<uint8_t> packed(std::initializer_list<uint8_t> args)
 
 bool checkCRC8Pack(std::vector<uint8_t>& data)
 {
-  std::vector<uint8_t> checkSrc(data.begin(), data.end() - 1);
-  uint8_t crcResult = calculateCRC8(checkSrc);
+  std::vector<uint8_t> checkSrc(data.begin(), data.end() - 1);  // -1 byte size crc
+  uint8_t crcResult = calculateCRC8(checkSrc.data(), checkSrc.size());
 
   if (data.back() != crcResult)
   {
@@ -84,7 +89,54 @@ bool checkCRC8Pack(std::vector<uint8_t>& data)
 
 std::vector<uint8_t> unpacked(std::vector<uint8_t>& data)
 {
-  std::vector<uint8_t> res(std::begin(data) + MAGIC.size() + 1, data.end() - 1); // get data without magic number and crc
+  std::vector<uint8_t> res(data.begin() + MAGIC.size() + 1, data.end() - 1); // get data without magic number, len and crc
 
   return res;
+}
+
+Mode ate401_parser(std::vector<uint8_t>& data)
+{
+  uint8_t cmd = data.at(0);
+
+  switch (cmd) {
+    case ECHO:
+      mode.echo = true;
+      break;
+
+    case TEST_MODE:
+      mode.ate = data.at(1);
+      break;
+
+    case LED_RED:
+      mode.led.red = data.at(1);
+      break;
+
+    case LED_GREEN:
+      mode.led.green = data.at(1);
+      break;
+
+    case BUZZER:
+      mode.buzzer.state = data.at(1);
+
+      if (mode.buzzer.state == static_cast<uint8_t>(ATE401Indicate::PWM))
+      {
+        mode.buzzer.properties.count = (static_cast<uint16_t>(data.at(2)) << 8) | static_cast<uint16_t>(data.at(3));
+        mode.buzzer.properties.interval_ms = (static_cast<uint16_t>(data.at(4)) << 8) | static_cast<uint16_t>(data.at(5));
+        mode.buzzer.properties.duration_ms = (static_cast<uint16_t>(data.at(6)) << 8) | static_cast<uint16_t>(data.at(7));
+      }
+      break;
+
+    case SET_TIME:
+      mode.time = (static_cast<uint32_t>(data.at(2)) << 0) |
+                  (static_cast<uint32_t>(data.at(3)) << 8) |
+                  (static_cast<uint32_t>(data.at(4)) << 16) |
+                  (static_cast<uint32_t>(data.at(5)) << 24);
+      break;
+
+    case POWER:
+      mode.power_delay_ms = (static_cast<uint32_t>(data.at(2)) << 0) | (static_cast<uint32_t>(data.at(3)) << 8);
+      break;
+  }
+
+  return mode;
 }
