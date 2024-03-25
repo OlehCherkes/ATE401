@@ -17,6 +17,7 @@ constexpr uint8_t POWER          = 0x0F;
 extern const std::string MAGIC;
 extern const uint8_t crc8Table[256];
 extern struct Mode mode;
+extern struct ATE401State state;
 
 enum class ATE401Indicate : uint8_t
 {
@@ -65,7 +66,8 @@ struct Mode {
 
 uint8_t calculateCRC8(uint8_t* data, size_t len);
 bool checkCRC8(const std::vector<uint8_t>& data, uint8_t expectedCRC);
+bool checkCRC8Pack(std::vector<uint8_t>& data);
 std::vector<uint8_t> packed(std::initializer_list<uint8_t> args);
 std::vector<uint8_t> unpacked(std::vector<uint8_t>& data);
-bool checkCRC8Pack(std::vector<uint8_t>& data);
 Mode ate401_parser(std::vector<uint8_t>& data);
+std::vector<uint8_t> ack(uint8_t cmd, ATE401State& state);

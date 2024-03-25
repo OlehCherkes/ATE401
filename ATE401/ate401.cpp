@@ -5,17 +5,20 @@
 #include <iterator>
 #include "ate401.h"
 
-/*=====================================================
+/*
+=====================================================
 Packets struct :
   [MAGIC:3]   | magic bytes '#@!'
   [LENGTH:1]  | packet length with LENGTH & with CRC8
   [PAYLOAD:N] | data N bytes
   [CRC8:1]    | CRC8 from & LENGTH to CRC8
-======================================================*/
+=====================================================
+*/
 
 const std::string MAGIC = "#@!";
 
 Mode mode{};
+ATE401State state;
 
 // This is the CRC8 polynomial x^8 + x^2 + x^1 + 1 (0x07)
 const uint8_t crc8Table[256] = {
@@ -57,6 +60,20 @@ bool checkCRC8(const std::vector<uint8_t>& data, uint8_t expectedCRC) {
   return crc == expectedCRC;
 }
 
+bool checkCRC8Pack(std::vector<uint8_t>& data)
+{
+  std::vector<uint8_t> checkSrc(data.begin(), data.end() - 1);  // -1 byte size crc
+  uint8_t crcResult = calculateCRC8(checkSrc.data(), checkSrc.size());
+
+  if (data.back() != crcResult)
+  {
+    std::cout << "ERROR, checksum did not match" << std::endl;
+    return 0;
+  }
+
+  return 1;
+}
+
 std::vector<uint8_t> packed(std::initializer_list<uint8_t> args)
 {
   std::vector<uint8_t> data;
@@ -73,18 +90,23 @@ std::vector<uint8_t> packed(std::initializer_list<uint8_t> args)
   return data;
 }
 
-bool checkCRC8Pack(std::vector<uint8_t>& data)
+std::vector<uint8_t> ack(uint8_t cmd, ATE401State& state)
 {
-  std::vector<uint8_t> checkSrc(data.begin(), data.end() - 1);  // -1 byte size crc
-  uint8_t crcResult = calculateCRC8(checkSrc.data(), checkSrc.size());
+  std::vector<uint8_t> data;
+  data.reserve(MAGIC.size() + 1 + sizeof(state) +  2); // memory reservation
 
-  if (data.back() != crcResult)
-  {
-    std::cout << "ERROR, checksum did not match" << std::endl;
-    return 0;
-  }
+  std::copy(std::begin(MAGIC), std::end(MAGIC), std::back_inserter(data));
+  data.push_back(cmd);
 
-  return 1;
+  const uint8_t* statePtr = reinterpret_cast<const uint8_t*>(&state);
+  std::copy(statePtr, statePtr + sizeof(state), std::back_inserter(data));
+
+  data.insert(data.begin() + MAGIC.size(), data.size());
+
+  uint8_t crcResult = calculateCRC8(data.data(), data.size());
+  data.push_back(crcResult);
+
+  return data;
 }
 
 std::vector<uint8_t> unpacked(std::vector<uint8_t>& data)
