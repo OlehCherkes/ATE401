@@ -30,8 +30,6 @@ int main(void)
   //---------------------- UNPACK ------------------------------ 
   std::cout << std::endl;
 
-  // "#@!
-
   if (checkCRC8Pack(res))
   {
     res = unpacked(res);
@@ -45,6 +43,15 @@ int main(void)
     }
     std::cout << std::endl;
   }
+
+
+  //---------------------- ACK ------------------------------ 
+  res = ack(ACK, state);
+
+  for (const auto& element : res) {
+    std::cout << "0x" << std::hex << static_cast<int>(element) << " ";
+  }
+  std::cout << std::endl;
 
 	return 0;
 }

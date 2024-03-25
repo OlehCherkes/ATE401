@@ -64,7 +64,7 @@ struct Mode {
   uint16_t power_delay_ms;
 };
 
-uint8_t calculateCRC8(uint8_t* data, size_t len);
+uint8_t calculateCRC8(const void* d, size_t len);
 bool checkCRC8(const std::vector<uint8_t>& data, uint8_t expectedCRC);
 bool checkCRC8Pack(std::vector<uint8_t>& data);
 std::vector<uint8_t> packed(std::initializer_list<uint8_t> args);

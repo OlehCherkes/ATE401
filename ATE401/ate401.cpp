@@ -40,8 +40,10 @@ const uint8_t crc8Table[256] = {
     0xDE, 0xD9, 0xD0, 0xD7, 0xC2, 0xC5, 0xCC, 0xCB, 0xE6, 0xE1, 0xE8, 0xEF, 0xFA, 0xFD, 0xF4, 0xF3,
 };
 
-uint8_t calculateCRC8(uint8_t* data, size_t len) {
+uint8_t calculateCRC8(const void* d, size_t len) {
   uint8_t crc = 0;
+
+  auto data = static_cast<const uint8_t*>(d);
 
   for (int i = 0; i < len; ++i) {
     crc = crc8Table[crc ^ data[i]];
@@ -125,6 +127,10 @@ Mode ate401_parser(std::vector<uint8_t>& data)
       mode.echo = true;
       break;
 
+    case ACK:
+   
+      break;
+
     case TEST_MODE:
       mode.ate = data.at(1);
       break;
@@ -162,3 +168,4 @@ Mode ate401_parser(std::vector<uint8_t>& data)
 
   return mode;
 }
+
