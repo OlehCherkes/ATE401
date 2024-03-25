@@ -20,7 +20,8 @@ Permission is hereby granted, to the employees of U-Prox company.
   * [POWER](#chapter-11)
   
 * [Reply](#chapter-12)
-* [Optional structures](#chapter-13)
+* [Test points](#chapter-14)
+* [Optional structures](#chapter-15)
 
 <a id="chapter-0"></a>
 Overview
@@ -222,6 +223,35 @@ struct ATE401State {
 ```
 
 <a id="chapter-14"></a>
+Test points
+===============================================================================================================================
+
+```markdown
+  TP1 - clock calibration
+  TP2 - GND
+  TP3 - get the voltage value from the test equipment via the I2C interface (normally 3.3v)
+  TP4 - for programming
+  TP5 - TX (Raspberry Pi <-> ip401)
+  TP6 - RX (Raspberry Pi <-> ip401)
+  TP7 - for programming (boot mode)
+  TP8 - TXD (write byte via I2C, receiving the same byte via TX)
+  TP9 - RXD (write byte via RX, receiving the same byte via I2C)
+  TP10 - OUT (send command on/off via UART, read value via I2C)
+  TP11 - RTE (send command on/off via I2c, read value via UART)
+  TP12 - DC (send command on/off via I2c, read value via UART)
+  TP13 - reading voltage data via the I2C interface (normally 4.8v)
+  TP14 - REL (send command on/off via UART, read value via I2C)
+  TP15 - for programming
+  TP16 - GND
+  TP17 - BUZZER (send command on/off via UART, read value via I2C)
+  TP18 - +12v3 (reading voltage data via the I2C interface)
+  TP19 - TMP (send command on/off via I2c, read value via UART)
+  TP20 - Capacitive Button (send command on/off via UART, read value via I2C)
+  TP21 - JTDO for programming
+  TP22 - TDI for JTAG (not used) 
+```
+
+<a id="chapter-15"></a>
 Optional structures
 ===============================================================================================================================
 
