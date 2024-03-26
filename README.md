@@ -13,15 +13,23 @@ Permission is hereby granted, to the employees of U-Prox company.
   * [ECHO](#chapter-4)
   * [ACK](#chapter-5)
   * [TEST_MODE](#chapter-6)
-  * [LED_RED](#chapter-7)
-  * [LED_GREEN](#chapter-8)
-  * [BUZZER](#chapter-9)
-  * [SET_TIME](#chapter-10)
-  * [POWER](#chapter-11)
+  * [SET_TIME](#chapter-7)
+  * [TXD](#chapter-8)
+  * [RXD](#chapter-9)
+  * [OUT](#chapter-10)
+  * [RTE](#chapter-11)
+  * [DC](#chapter-12)
+  * [REL](#chapter-13)
+  * [TMP](#chapter-14)
+  * [BUTTON](#chapter-15)
+  * [BUZZER](#chapter-16)
+  * [LED_RED](#chapter-17)
+  * [LED_GREEN](#chapter-18)
+  * [LED_BLUE](#chapter-19)
   
-* [Reply](#chapter-12)
-* [Test points](#chapter-14)
-* [Optional structures](#chapter-15)
+* [Reply](#chapter-20)
+* [Test points](#chapter-21)
+* [Optional structures](#chapter-22)
 
 <a id="chapter-0"></a>
 Overview
@@ -58,16 +66,12 @@ Commands part
   RTE               = 0x07
   DC                = 0x08
   REL               = 0x09
-  TMP               = 0x0B
-  BUTTON            = 0x0C
-  POWER_POINT_A     = 0x0D
-  POWER_POINT_B     = 0x0E
-  POWER_POINT_C     = 0x0F
-  BATTERY           = 0x10
-  BUZZER            = 0x0A
-  LED_RED           = 0x11
-  LED_GREEN         = 0x12
-  LED_BLUE          = 0x13
+  TMP               = 0x0A
+  BUTTON            = 0x0B
+  BUZZER            = 0x0C
+  LED_RED           = 0x0D
+  LED_GREEN         = 0x0E
+  LED_BLUE          = 0x0F
   ```
 
 <a id="chapter-3"></a>
@@ -86,12 +90,12 @@ Checking the performance of data transmission.
 <a id="chapter-5"></a>
 **ACK**              0x01
 
-After sending this command, the device under test sends a response with a description of the device state, various parameters and flags.
+After sending any command, the device under test sends a response with a description of the state of the device, various parameters and flags.
 ```markdown
   [MAGIC:3][LENGTH:1][ACK:1][ATE401State:sizeoff(ATE401State)][CRC8:1]
 ```
 
-[ATE401State structure ](#chapter-13)
+[ATE401State structure ](#chapter-23)
   - Version
   - Time
   - TXD
@@ -102,10 +106,6 @@ After sending this command, the device under test sends a response with a descri
   - REL
   - TMP
   - Capacitive Button
-  - Power 3.3v
-  - Power 4.8v
-  - Power 12v
-  - Battery
   - Buzzer
   - Led Red 
   - Led Green
@@ -115,7 +115,7 @@ After sending this command, the device under test sends a response with a descri
 <a id="chapter-6"></a>
 **TEST_MODE**         0x02
 
-Command to put the device in test mode.
+Puts the device in test mode.
 ```markdown
   [MAGIC:3][LENGTH:1][TEST_MODE:1][ATE_PARAM:1][CRC8:1]
 ```
@@ -124,7 +124,7 @@ Command to put the device in test mode.
     * ON = 1
 ---------------------------------
 
-<a id="chapter-10"></a>
+<a id="chapter-7"></a>
 **SET_TIME**         0x03
 
 Used [UnixTime](https://en.wikipedia.org/wiki/Unix_time)
@@ -152,7 +152,7 @@ uint32_t time_le =
 ```
 ---------------------------------
 
-<a id="chapter-6"></a>
+<a id="chapter-8"></a>
 **TXD**         0x04
 
 Read byte.
@@ -163,7 +163,7 @@ To test the TXD line in EEPROM sets 1 byte via test equipment using I2C interfac
 ```
 ---------------------------------
 
-<a id="chapter-6"></a>
+<a id="chapter-9"></a>
 **RXD**         0x05
 
 Set byte.
@@ -176,7 +176,7 @@ To test the RXD line in EEPROM sets 1 byte via UART, and then this byte is read 
     * 1 char
 ---------------------------------
 
-<a id="chapter-6"></a>
+<a id="chapter-10"></a>
 **OUT**         0x06
 
 Set pin state.
@@ -190,7 +190,7 @@ OUT pin sets to LOW or HIGH state, then test equipment takes measurements.
     * ON = 1
 ---------------------------------
 
-<a id="chapter-6"></a>
+<a id="chapter-11"></a>
 **RTE**         0x07
 
 Read pin state.
@@ -201,8 +201,8 @@ RTE pin sets to LOW or HIGH via the test equipment, then ip401 reads the input m
 ```
 ---------------------------------
 
-<a id="chapter-6"></a>
-**DC**         0x07
+<a id="chapter-12"></a>
+**DC**         0x08
 
 Read pin state.
 
@@ -212,10 +212,11 @@ DC pin sets to LOW or HIGH via the test equipment, then ip401 reads the input me
 ```
 ---------------------------------
 
-<a id="chapter-6"></a>
-**REL**         0x04
+<a id="chapter-13"></a>
+**REL**         0x09
 
 Set pin state.
+
 REL pin sets to LOW or HIGH state, then test equipment takes measurements.
 ```markdown
   [MAGIC:3][LENGTH:1][REL:1][STATE:1][CRC8:1]
@@ -225,8 +226,8 @@ REL pin sets to LOW or HIGH state, then test equipment takes measurements.
     * ON = 1
 ---------------------------------
 
-<a id="chapter-6"></a>
-**TMP**         0x07
+<a id="chapter-14"></a>
+**TMP**         0x0A
 
 Read pin state.
 
@@ -236,8 +237,8 @@ TMP pin sets to LOW or HIGH via the test equipment, then ip401 reads the input m
 ```
 ---------------------------------
 
-<a id="chapter-6"></a>
-**BUTTON**         0x07
+<a id="chapter-15"></a>
+**BUTTON**         0x0B
 
 Read pin state.
 
@@ -247,52 +248,8 @@ BUTTON pin sets to LOW or HIGH via the test equipment, then ip401 reads the inpu
 ```
 ---------------------------------
 
-<a id="chapter-6"></a>
-**POWER_POINT_A**         0x07
-
-Read power.
-
-POWER_POINT_A read measurement result (normally 3.3v).
-```markdown
-  [MAGIC:3][LENGTH:1][POWER_POINT_A:1][CRC8:1]
-```
----------------------------------
-
-<a id="chapter-6"></a>
-**POWER_POINT_B**         0x07
-
-Read power.
-
-POWER_POINT_B read measurement result (normally 4.8v).
-```markdown
-  [MAGIC:3][LENGTH:1][POWER_POINT_B:1][CRC8:1]
-```
----------------------------------
-
-<a id="chapter-6"></a>
-**POWER_POINT_C**         0x07
-
-Read power.
-
-POWER_POINT_C read measurement result (normally 12v).
-```markdown
-  [MAGIC:3][LENGTH:1][POWER_POINT_C:1][CRC8:1]
-```
----------------------------------
-
-<a id="chapter-6"></a>
-**BATTERY**         0x07
-
-Read power.
-
-BATTERY pins test equipment reads the measurement result.
-```markdown
-  [MAGIC:3][LENGTH:1][BATTERY:1][CRC8:1]
-```
----------------------------------
-
-<a id="chapter-9"></a>
-**BUZZER**           0x0B
+<a id="chapter-16"></a>
+**BUZZER**           0x0C
 
 Set pin state.
 
@@ -319,8 +276,8 @@ BUZZER pin sets state, then test equipment takes measurements.
     ** count intervals == 0 (infinity repeate)
 ---------------------------------
 
-<a id="chapter-7"></a>
-**LED_RED**           0x09
+<a id="chapter-17"></a>
+**LED_RED**           0x0D
 
 Set pin state.
 
@@ -333,8 +290,8 @@ LED_RED pin sets to LOW or HIGH state, then test equipment takes measurements.
     * ON = 1
 ---------------------------------
 
-<a id="chapter-8"></a>
-**LED_GREEN**         0x0A
+<a id="chapter-18"></a>
+**LED_GREEN**         0x0E
 
 Set pin state.
 
@@ -347,8 +304,8 @@ LED_RED pin sets to LOW or HIGH state, then test equipment takes measurements.
     * ON = 1
 ---------------------------------
 
-<a id="chapter-8"></a>
-**LED_BLUE**         0x0A
+<a id="chapter-19"></a>
+**LED_BLUE**         0x0F
 
 Set pin state.
 
@@ -361,38 +318,33 @@ LED_RED pin sets to LOW or HIGH state, then test equipment takes measurements.
     * ON = 1
 ---------------------------------
 
-<a id="chapter-12"></a>
+<a id="chapter-20"></a>
 Reply
 ===============================================================================================================================
-Upon successful delivery and reading of the command, the testing equipment provides a response indicating either success or failure.
+Upon successful delivery and reading of the command, the testing equipment provides a response comand ACK indicating either success or failure.
 
-Response to the command **ACK 0x01**, you will receive a data packet of this format.
-
-<a id="chapter-13"></a>
+<a id="chapter-23"></a>
 The data will come in the form of a structure:
 ```c++
 struct ATE401State {
-    uint8_t mvbus : 1;        // power HUB    : normal
-    uint8_t mvbat : 1;        // bat   HUB    : normal
-    uint8_t gsm_sim_det : 1;  // modem        : sim card present
-    uint8_t gsm_register : 1; // modem        : registered
-    uint8_t boff : 1;         // HUB power key: pressed
-    uint8_t tamper : 1;       // HUB tamper   : normal
-    uint8_t rf0 : 1;          // error
-    uint8_t rf1 : 1;          // error
-    uint8_t eth : 1;          // error
-    uint8_t ethLink : 1;      // eth link     : normal
-    uint8_t wifiConnect : 1;  // eth link     : normal
-    uint8_t wifiRssi;         // bat voltage in mV
-    uint8_t gsmRssi;          // bat voltage in mV
-
-    uint8_t batMv[2];         // bat voltage in mV
-    uint8_t ethIp[4];         // ip over ethernet
-    uint8_t wifiIp[4];        // ip over wifi
+    uint8_t version;
+    uint32_t time;
+    uint8_t txd;
+    uint8_t rxd;
+    uint8_t out;
+    uint8_t rte;
+    uint8_t dc;
+    uint8_t rel;
+    uint8_t tmp;
+    uint8_t button;
+    uint8_t buzzer;
+    uint8_t led_red;
+    uint8_t led_green;
+    uint8_t led_blue;
   };
 ```
 
-<a id="chapter-14"></a>
+<a id="chapter-21"></a>
 Test points
 ===============================================================================================================================
   The value of the ip401 gpio outputs measures the test equipment, after which the data can be read via I2C. The value from the gpio outputs is measured by ip401, it can be read via UART.
@@ -424,21 +376,29 @@ Test points
   LED - RED and GREEN (send command on/off via I2c, read value via UART)
 ```
 
-<a id="chapter-15"></a>
+<a id="chapter-22"></a>
 Optional structures
 ===============================================================================================================================
 
 ```c++
   enum class PiATE401Cmd : uint8_t
   {
-    ECHO = 0x00,
-    ACK = 0x01,
-    TEST_MODE = 0x02,
-    LED_RED = 0x09,
-    LED_GREEN = 0x0A,
-    BUZZER = 0x0B,
-    SET_TIME = 0x0C,
-    POWER = 0x0F,
+    ECHO       = 0x00,
+    ACK        = 0x01,
+    TEST_MODE  = 0x02,
+    SET_TIME   = 0x03,
+    TXD        = 0x04,
+    RXD        = 0x05,
+    OUT        = 0x06,
+    RTE        = 0x07,
+    DC         = 0x08,
+    REL        = 0x09,
+    TMP        = 0x0A,
+    BUTTON     = 0x0B,
+    BUZZER     = 0x0C,
+    LED_RED    = 0x0D,
+    LED_GREEN  = 0x0E,
+    LED_BLUE   = 0x0F,
   };
 ```
 ```c++
