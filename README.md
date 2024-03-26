@@ -50,21 +50,22 @@ Commands part
   ACK               = 0x01
   TEST_MODE         = 0x02
   TIME              = 0x03
-  POWER 3.3         = 0x04
-  TXD               = 0x05
-  RXD               = 0x06
-  OUT               = 0x07
-  RTE               = 0x08
-  DC                = 0x09
-  POWER 4.8         = 0x0A
-  REL               = 0x0B
-  BUZZER            = 0x0C
-  POWER 12          = 0x0D
-  TMP               = 0x0E
-  CAP_BUTTON        = 0x0F
-  LED_RED           = 0x10
-  LED_GREEN         = 0x11
-  POWER             = 0x12
+  TXD               = 0x04
+  RXD               = 0x05
+  OUT               = 0x06
+  RTE               = 0x07
+  DC                = 0x08
+  REL               = 0x09
+  BUZZER            = 0x0A
+  TMP               = 0x0B
+  CAP_BUTTON        = 0x0C
+  POWER 3.3         = 0x0D
+  POWER 4.8         = 0x0E
+  POWER 12          = 0x0F
+  BATTERY           = 0x10
+  LED_RED           = 0x11
+  LED_GREEN         = 0x12
+  LED_BLUE          = 0x13
   ```
 
 <a id="chapter-3"></a>
