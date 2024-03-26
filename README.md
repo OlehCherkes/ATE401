@@ -28,6 +28,8 @@ Overview
 ===============================================================================================================================
 The data exchange protocol between Raspberry Pi and test equipment is IP401. This protocol facilitates seamless communication and data transfer between the Raspberry Pi and the testing equipment. It specifies the format, structure, and rules for transmitting and receiving data, allowing the Raspberry Pi and the test equipment to understand and interpret the information exchanged between them accurately.
 
+To get started, the device needs to be put into test mode by sending the command **TEST_MODE**
+
 ![ate](/doc/ate.png)
 
 <a id="chapter-1"></a>
@@ -49,20 +51,20 @@ Commands part
   ECHO              = 0x00
   ACK               = 0x01
   TEST_MODE         = 0x02
-  TIME              = 0x03
+  SET_TIME          = 0x03
   TXD               = 0x04
   RXD               = 0x05
   OUT               = 0x06
   RTE               = 0x07
   DC                = 0x08
   REL               = 0x09
-  BUZZER            = 0x0A
   TMP               = 0x0B
-  CAP_BUTTON        = 0x0C
-  POWER 3.3         = 0x0D
-  POWER 4.8         = 0x0E
-  POWER 12          = 0x0F
+  BUTTON            = 0x0C
+  POWER_POINT_A     = 0x0D
+  POWER_POINT_B     = 0x0E
+  POWER_POINT_C     = 0x0F
   BATTERY           = 0x10
+  BUZZER            = 0x0A
   LED_RED           = 0x11
   LED_GREEN         = 0x12
   LED_BLUE          = 0x13
@@ -70,12 +72,12 @@ Commands part
 
 <a id="chapter-3"></a>
 Examples of using commands
-=============================================================================================================================== 
+===============================================================================================================================
 
 <a id="chapter-4"></a>
 **ECHO**              0x00
 
-Start/End TestMode
+Checking the performance of data transmission.
 ```markdown
   [MAGIC:3][LENGTH:1][ECHO:1][CRC8:1]
 ```
@@ -84,12 +86,11 @@ Start/End TestMode
 <a id="chapter-5"></a>
 **ACK**              0x01
 
+After sending this command, the device under test sends a response with a description of the device state, various parameters and flags.
 ```markdown
   [MAGIC:3][LENGTH:1][ACK:1][ATE401State:sizeoff(ATE401State)][CRC8:1]
 ```
 
-After sending this command, the device under test sends a response with a description of the device state, various parameters and flags.
-    
 [ATE401State structure ](#chapter-13)
   - Version
   - Time
@@ -99,13 +100,13 @@ After sending this command, the device under test sends a response with a descri
   - RTE
   - DC
   - REL
-  - Buzzer
   - TMP
   - Capacitive Button
+  - Power 3.3v
+  - Power 4.8v
+  - Power 12v
   - Battery
-  - Power 3.3
-  - Power 4.8
-  - Power 12
+  - Buzzer
   - Led Red 
   - Led Green
   - Led Blue  
@@ -114,7 +115,7 @@ After sending this command, the device under test sends a response with a descri
 <a id="chapter-6"></a>
 **TEST_MODE**         0x02
 
-Start/End TestMode
+Command to put the device in test mode.
 ```markdown
   [MAGIC:3][LENGTH:1][TEST_MODE:1][ATE_PARAM:1][CRC8:1]
 ```
@@ -123,28 +124,179 @@ Start/End TestMode
     * ON = 1
 ---------------------------------
 
-<a id="chapter-7"></a>
-**LED_RED**           0x09
+<a id="chapter-10"></a>
+**SET_TIME**         0x03
+
+Used [UnixTime](https://en.wikipedia.org/wiki/Unix_time)
+
 ```markdown
-  [MAGIC:3][LENGTH:1][LED_RED:1][STATE:1][CRC8:1]
+  [MAGIC:3][LENGTH:1][SET_TIME:1][TIME:4|Little-Endian][CRC8:1]
+```
+
+```c++
+// Packing time to Little-Endian format
+uint32_t time_le = 1616183220; 
+uint8_t time_bytes[4];
+
+time_bytes[0] = (time_le >> 0) & 0xFF;
+time_bytes[1] = (time_le >> 8) & 0xFF;
+time_bytes[2] = (time_le >> 16) & 0xFF;
+time_bytes[3] = (time_le >> 24) & 0xFF;
+
+// Unpacking from Little-Endian format to uint32_t
+uint32_t time_le =
+    (static_cast<uint32_t>(time_bytes[0]) << 0) |
+    (static_cast<uint32_t>(time_bytes[1]) << 8) |
+    (static_cast<uint32_t>(time_bytes[2]) << 16) |
+    (static_cast<uint32_t>(time_bytes[3]) << 24);
+```
+---------------------------------
+
+<a id="chapter-6"></a>
+**TXD**         0x04
+
+Read byte.
+
+To test the TXD line in EEPROM sets 1 byte via test equipment using I2C interface, and then this byte reads via UART interface. For checking, bytes are compared.
+```markdown
+  [MAGIC:3][LENGTH:1][TXD:1][CRC8:1]
+```
+---------------------------------
+
+<a id="chapter-6"></a>
+**RXD**         0x05
+
+Set byte.
+
+To test the RXD line in EEPROM sets 1 byte via UART, and then this byte is read through the I2C interface. For checking bytes are compared.
+```markdown
+  [MAGIC:3][LENGTH:1][RXD:1][PARAM:1][CRC8:1]
+```
+* PARAM
+    * 1 char
+---------------------------------
+
+<a id="chapter-6"></a>
+**OUT**         0x06
+
+Set pin state.
+
+OUT pin sets to LOW or HIGH state, then test equipment takes measurements.
+```markdown
+  [MAGIC:3][LENGTH:1][OUT:1][STATE:1][CRC8:1]
 ```
 * STATE
     * OFF = 0
     * ON = 1
 ---------------------------------
 
-<a id="chapter-8"></a>
-**LED_GREEN**         0x0A
+<a id="chapter-6"></a>
+**RTE**         0x07
+
+Read pin state.
+
+RTE pin sets to LOW or HIGH via the test equipment, then ip401 reads the input measurement result.
 ```markdown
-  [MAGIC:3][LENGTH:1][LED_GREEN:1][STATE:1][CRC8:1]
+  [MAGIC:3][LENGTH:1][RTE:1][CRC8:1]
+```
+---------------------------------
+
+<a id="chapter-6"></a>
+**DC**         0x07
+
+Read pin state.
+
+DC pin sets to LOW or HIGH via the test equipment, then ip401 reads the input measurement result.
+```markdown
+  [MAGIC:3][LENGTH:1][DC:1][CRC8:1]
+```
+---------------------------------
+
+<a id="chapter-6"></a>
+**REL**         0x04
+
+Set pin state.
+REL pin sets to LOW or HIGH state, then test equipment takes measurements.
+```markdown
+  [MAGIC:3][LENGTH:1][REL:1][STATE:1][CRC8:1]
 ```
 * STATE
     * OFF = 0
     * ON = 1
+---------------------------------
+
+<a id="chapter-6"></a>
+**TMP**         0x07
+
+Read pin state.
+
+TMP pin sets to LOW or HIGH via the test equipment, then ip401 reads the input measurement result.
+```markdown
+  [MAGIC:3][LENGTH:1][TMP:1][CRC8:1]
+```
+---------------------------------
+
+<a id="chapter-6"></a>
+**BUTTON**         0x07
+
+Read pin state.
+
+BUTTON pin sets to LOW or HIGH via the test equipment, then ip401 reads the input measurement result.
+```markdown
+  [MAGIC:3][LENGTH:1][BUTTON:1][CRC8:1]
+```
+---------------------------------
+
+<a id="chapter-6"></a>
+**POWER_POINT_A**         0x07
+
+Read power.
+
+POWER_POINT_A read measurement result (normally 3.3v).
+```markdown
+  [MAGIC:3][LENGTH:1][POWER_POINT_A:1][CRC8:1]
+```
+---------------------------------
+
+<a id="chapter-6"></a>
+**POWER_POINT_B**         0x07
+
+Read power.
+
+POWER_POINT_B read measurement result (normally 4.8v).
+```markdown
+  [MAGIC:3][LENGTH:1][POWER_POINT_B:1][CRC8:1]
+```
+---------------------------------
+
+<a id="chapter-6"></a>
+**POWER_POINT_C**         0x07
+
+Read power.
+
+POWER_POINT_C read measurement result (normally 12v).
+```markdown
+  [MAGIC:3][LENGTH:1][POWER_POINT_C:1][CRC8:1]
+```
+---------------------------------
+
+<a id="chapter-6"></a>
+**BATTERY**         0x07
+
+Read power.
+
+BATTERY pins test equipment reads the measurement result.
+```markdown
+  [MAGIC:3][LENGTH:1][BATTERY:1][CRC8:1]
+```
 ---------------------------------
 
 <a id="chapter-9"></a>
 **BUZZER**           0x0B
+
+Set pin state.
+
+BUZZER pin sets state, then test equipment takes measurements.
 ```markdown
   [MAGIC:3][LENGTH:1][BUZZER:1][STATE:1][CRC8:1]
 ```
@@ -167,50 +319,46 @@ Start/End TestMode
     ** count intervals == 0 (infinity repeate)
 ---------------------------------
 
-<a id="chapter-10"></a>
-**SET_TIME**         0x0С
+<a id="chapter-7"></a>
+**LED_RED**           0x09
 
+Set pin state.
+
+LED_RED pin sets to LOW or HIGH state, then test equipment takes measurements.
 ```markdown
-  [MAGIC:3][LENGTH:1][SET_TIME:1][TIME:4|Little-Endian][CRC8:1]
+  [MAGIC:3][LENGTH:1][LED_RED:1][STATE:1][CRC8:1]
 ```
-
-Used [UnixTime](https://en.wikipedia.org/wiki/Unix_time)
-
-```markdown
-// Packing time to Little-Endian format
-uint32_t time_le = 1616183220; 
-uint8_t time_bytes[4];
-
-time_bytes[0] = (time_le >> 0) & 0xFF;
-time_bytes[1] = (time_le >> 8) & 0xFF;
-time_bytes[2] = (time_le >> 16) & 0xFF;
-time_bytes[3] = (time_le >> 24) & 0xFF;
-
-// Unpacking from Little-Endian format to uint32_t
-uint32_t time_le =
-    (static_cast<uint32_t>(time_bytes[0]) << 0) |
-    (static_cast<uint32_t>(time_bytes[1]) << 8) |
-    (static_cast<uint32_t>(time_bytes[2]) << 16) |
-    (static_cast<uint32_t>(time_bytes[3]) << 24);
-```
+* STATE
+    * OFF = 0
+    * ON = 1
 ---------------------------------
 
-<a id="chapter-11"></a>
-**POWER**             0x0F
+<a id="chapter-8"></a>
+**LED_GREEN**         0x0A
 
-POWER **OFF** after delay in ms
-```markdown
-  [MAGIC:3][LENGTH:1][POWER:1][DELAY_MS:2||Little-Endian][CRC8:1]
-```
-```markdown
-// Packing delay ms to Little-Endian format
-uint16_t value = 1000;
-uint8_t byte1 = value & 0xFF;
-uint8_t byte2 = (value >> 8) & 0xFF;
+Set pin state.
 
-// Unpacking delay ms from Little-Endian format to uint16_t
-uint16_t value = (static_cast<uint32_t>(time_bytes[0]) << 0) | (static_cast<uint32_t>(time_bytes[1]) << 8);
+LED_RED pin sets to LOW or HIGH state, then test equipment takes measurements.
+```markdown
+  [MAGIC:3][LENGTH:1][LED_GREEN:1][STATE:1][CRC8:1]
 ```
+* STATE
+    * OFF = 0
+    * ON = 1
+---------------------------------
+
+<a id="chapter-8"></a>
+**LED_BLUE**         0x0A
+
+Set pin state.
+
+LED_RED pin sets to LOW or HIGH state, then test equipment takes measurements.
+```markdown
+  [MAGIC:3][LENGTH:1][LED_BLUE:1][STATE:1][CRC8:1]
+```
+* STATE
+    * OFF = 0
+    * ON = 1
 ---------------------------------
 
 <a id="chapter-12"></a>
@@ -269,7 +417,7 @@ Test points
   TP17 - BUZZER (send command on/off via UART, read value via I2C)
   TP18 - +12v3 (reading voltage data via the I2C interface)
   TP19 - TMP (send command on/off via I2c, read value via UART)
-  TP20 - Capacitive Button (send command on/off via UART, read value via I2C)
+  TP20 - Capacitive Button (send command on/off via I2c, read value via UART)
   TP21 - JTDO for programming
   TP22 - TDI for JTAG (not used) 
 
