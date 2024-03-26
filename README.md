@@ -26,10 +26,11 @@ Permission is hereby granted, to the employees of U-Prox company.
   * [LED_RED](#chapter-17)
   * [LED_GREEN](#chapter-18)
   * [LED_BLUE](#chapter-19)
+  * [WIFI_CRED](#chapter-20)
   
-* [Reply](#chapter-20)
-* [Test points](#chapter-21)
-* [Optional structures](#chapter-22)
+* [Reply](#chapter-21)
+* [Test points](#chapter-22)
+* [Optional structures](#chapter-23)
 
 <a id="chapter-0"></a>
 Overview
@@ -72,6 +73,7 @@ Commands part
   LED_RED           = 0x0D
   LED_GREEN         = 0x0E
   LED_BLUE          = 0x0F
+  WIFI_CRED         = 0x10
   ```
 
 <a id="chapter-3"></a>
@@ -109,7 +111,8 @@ After sending any command, the device under test sends a response with a descrip
   - Buzzer
   - Led Red 
   - Led Green
-  - Led Blue  
+  - Led Blue
+  - IP Address 
 ---------------------------------
 
 <a id="chapter-6"></a>
@@ -157,7 +160,7 @@ uint32_t time_le =
 
 Read byte.
 
-To test the TXD line in EEPROM sets 1 byte via test equipment using I2C interface, and then this byte reads via UART interface. For checking, bytes are compared.
+To check the TXD line in ip401 EEPROM sets 1 byte using test equipment (I2C), and then reads this byte using the UART. TFor checking bytes are compared.
 ```markdown
   [MAGIC:3][LENGTH:1][TXD:1][CRC8:1]
 ```
@@ -168,7 +171,7 @@ To test the TXD line in EEPROM sets 1 byte via test equipment using I2C interfac
 
 Set byte.
 
-To test the RXD line in EEPROM sets 1 byte via UART, and then this byte is read through the I2C interface. For checking bytes are compared.
+To test the RXD line in ip401 EEPROM sets 1 byte via UART, and then this byte is read through the I2C interface. For checking bytes are compared.
 ```markdown
   [MAGIC:3][LENGTH:1][RXD:1][PARAM:1][CRC8:1]
 ```
@@ -319,32 +322,45 @@ LED_RED pin sets to LOW or HIGH state, then test equipment takes measurements.
 ---------------------------------
 
 <a id="chapter-20"></a>
+**WIFI_CRED**         0x10
+
+Set Wi-Fi credential.
+
+If the connection is successful, ip401 returns the IP address.
+```markdown
+  [WIFI_CRED:1][SSID:N][NTS][PASSWORD:M][NTS]
+```
+  * NTS - 0x00 "null terminated string"
+---------------------------------
+
+<a id="chapter-21"></a>
 Reply
 ===============================================================================================================================
 Upon successful delivery and reading of the command, the testing equipment provides a response comand ACK indicating either success or failure.
 
-<a id="chapter-23"></a>
+<a id="chapter-24"></a>
 The data will come in the form of a structure:
 ```c++
 struct ATE401State {
-    uint8_t version;
+    uint16_t version;
     uint32_t time;
     uint8_t txd;
     uint8_t rxd;
-    uint8_t out;
-    uint8_t rte;
-    uint8_t dc;
-    uint8_t rel;
-    uint8_t tmp;
+    uint8_t output;
+    uint8_t request_to_exit;
+    uint8_t door_control;
+    uint8_t rellay;
+    uint8_t tamper;
     uint8_t button;
     uint8_t buzzer;
     uint8_t led_red;
     uint8_t led_green;
     uint8_t led_blue;
+    uint32_t ip_address;
   };
 ```
 
-<a id="chapter-21"></a>
+<a id="chapter-22"></a>
 Test points
 ===============================================================================================================================
   The value of the ip401 gpio outputs measures the test equipment, after which the data can be read via I2C. The value from the gpio outputs is measured by ip401, it can be read via UART.
@@ -376,7 +392,7 @@ Test points
   LED - RED and GREEN (send command on/off via I2c, read value via UART)
 ```
 
-<a id="chapter-22"></a>
+<a id="chapter-23"></a>
 Optional structures
 ===============================================================================================================================
 
@@ -399,6 +415,7 @@ Optional structures
     LED_RED    = 0x0D,
     LED_GREEN  = 0x0E,
     LED_BLUE   = 0x0F,
+    WIFI_CRED  = 0x10,
   };
 ```
 ```c++
