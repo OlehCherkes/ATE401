@@ -2,6 +2,7 @@
 #include <string>
 #include <cstdint>
 #include "ATE401/ate401.h"
+#include "crc.h"
 
 int main(void)
 {

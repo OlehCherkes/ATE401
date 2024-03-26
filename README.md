@@ -2,7 +2,7 @@
 
 IPL License
 
-Copyright 2024 U-Prox by Oleh Cherkes
+Copyright 2024 U-Prox
 
 Permission is hereby granted, to the employees of U-Prox company.
 
@@ -28,15 +28,17 @@ Overview
 ===============================================================================================================================
 The data exchange protocol between Raspberry Pi and test equipment is IP401. This protocol facilitates seamless communication and data transfer between the Raspberry Pi and the testing equipment. It specifies the format, structure, and rules for transmitting and receiving data, allowing the Raspberry Pi and the test equipment to understand and interpret the information exchanged between them accurately.
 
+![ate](/doc/ate.png)
+
 <a id="chapter-1"></a>
 Transport part
 ===============================================================================================================================
 ```markdown
 Packets struct:
   [MAGIC:3]               | magic bytes '#@!'
-  [LENGTH:1]              | packet length with LENGTH & with CRC8
+  [LENGTH:1]              | length includes data size, LENGTH and CRC8 (without magic bytes)
   [PAYLOAD:N]             | data N bytes
-  [CRC8:1]                | CRC8 from &LENGTH to CRC8
+  [CRC8:1]                | CRC8 from LENGTH to CRC8
 ```
 
 <a id="chapter-2"></a>
@@ -78,15 +80,22 @@ Start/End TestMode
 After sending this command, the device under test sends a response with a description of the device state, various parameters and flags.
     
 [ATE401State structure ](#chapter-13)
-  - version
-  - time
-  - bat
-  - tamper
-  - power
-  - power key
-  - Red Led
-  - Green Led
-  - buzzer
+  - Version
+  - Time
+  - Power 3.3
+  - TXD
+  - RXD
+  - OUT
+  - RTE
+  - DC
+  - Power 4.8
+  - REL
+  - Buzzer
+  - Power 12
+  - TMP
+  - Capacitive Button
+  - Led Red 
+  - Led Green 
 ---------------------------------
 
 <a id="chapter-6"></a>
@@ -225,6 +234,7 @@ struct ATE401State {
 <a id="chapter-14"></a>
 Test points
 ===============================================================================================================================
+  The value of the ip401 gpio outputs measures the test equipment, after which the data can be read via I2C. The value from the gpio outputs is measured by ip401, it can be read via UART.
 
 ```markdown
   TP1 - clock calibration
@@ -249,6 +259,8 @@ Test points
   TP20 - Capacitive Button (send command on/off via UART, read value via I2C)
   TP21 - JTDO for programming
   TP22 - TDI for JTAG (not used) 
+
+  LED - RED and GREEN (send command on/off via I2c, read value via UART)
 ```
 
 <a id="chapter-15"></a>
