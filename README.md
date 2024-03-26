@@ -45,15 +45,26 @@ Packets struct:
 Commands part
 ===============================================================================================================================
 
-```markdown
+```
   ECHO              = 0x00
   ACK               = 0x01
   TEST_MODE         = 0x02
-  LED_RED           = 0x09
-  LED_GREEN         = 0x0A
-  BUZZER            = 0x0B
-  SET_TIME          = 0x0C
-  POWER             = 0x0F
+  TIME              = 0x03
+  POWER 3.3         = 0x04
+  TXD               = 0x05
+  RXD               = 0x06
+  OUT               = 0x07
+  RTE               = 0x08
+  DC                = 0x09
+  POWER 4.8         = 0x0A
+  REL               = 0x0B
+  BUZZER            = 0x0C
+  POWER 12          = 0x0D
+  TMP               = 0x0E
+  CAP_BUTTON        = 0x0F
+  LED_RED           = 0x10
+  LED_GREEN         = 0x11
+  POWER             = 0x12
   ```
 
 <a id="chapter-3"></a>
