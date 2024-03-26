@@ -83,7 +83,6 @@ Start/End TestMode
 <a id="chapter-5"></a>
 **ACK**              0x01
 
-Start/End TestMode
 ```markdown
   [MAGIC:3][LENGTH:1][ACK:1][ATE401State:sizeoff(ATE401State)][CRC8:1]
 ```
@@ -93,20 +92,22 @@ After sending this command, the device under test sends a response with a descri
 [ATE401State structure ](#chapter-13)
   - Version
   - Time
-  - Power 3.3
   - TXD
   - RXD
   - OUT
   - RTE
   - DC
-  - Power 4.8
   - REL
   - Buzzer
-  - Power 12
   - TMP
   - Capacitive Button
+  - Battery
+  - Power 3.3
+  - Power 4.8
+  - Power 12
   - Led Red 
-  - Led Green 
+  - Led Green
+  - Led Blue  
 ---------------------------------
 
 <a id="chapter-6"></a>
