@@ -81,7 +81,7 @@ Examples of using commands
 <a id="chapter-4"></a>
 **ECHO**              0x00
 
-Checking the performance of data transmission.
+Checking the data transmission.
 ```markdown
   [MAGIC:3][LENGTH:1][ECHO:1][CRC8:1]
 ```
