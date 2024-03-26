@@ -389,7 +389,7 @@ Test points
   TP21 - JTDO for programming
   TP22 - TDI for JTAG (not used) 
 
-  LED - RED and GREEN (send command on/off via I2c, read value via UART)
+  LED - RED, GREEN and BLUE (send command on/off via UART, read value via I2C)
 ```
 
 <a id="chapter-23"></a>
