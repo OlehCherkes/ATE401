@@ -4,29 +4,34 @@
 #include <cstdint>
 #include <vector>
 
-// comands
-constexpr uint8_t ECHO           = 0x00;
-constexpr uint8_t ACK            = 0x01;
-constexpr uint8_t TEST_MODE      = 0x02;
-constexpr uint8_t SET_TIME       = 0x03;
-constexpr uint8_t TXD            = 0x04;
-constexpr uint8_t RXD            = 0x05;
-constexpr uint8_t OUT            = 0x06;
-constexpr uint8_t RTE            = 0x07;
-constexpr uint8_t DC             = 0x08;
-constexpr uint8_t REL            = 0x09;
-constexpr uint8_t TMP            = 0x0A;
-constexpr uint8_t BUTTON         = 0x0B;
-constexpr uint8_t BUZZER         = 0x0C;
-constexpr uint8_t LED_RED        = 0x0D;
-constexpr uint8_t LED_GREEN      = 0x0E;
-constexpr uint8_t LED_BLUE       = 0x0F;
-constexpr uint8_t WIFI_CRED      = 0x10;
-
 extern const std::string MAGIC;
 extern const uint8_t crc8Table[256];
 extern struct Mode mode;
 extern struct ATE401State state;
+extern struct Esp2MspBlink interval;
+
+// comands
+enum class Ate401Cmd: uint8_t
+{
+  ECHO           = 0x00,
+  ACK            = 0x01,
+  TEST_MODE      = 0x02,
+  SET_TIME       = 0x03,
+  TXD            = 0x04,
+  RXD            = 0x05,
+  OUT            = 0x06,
+  RTE            = 0x07,
+  DC             = 0x08,
+  REL            = 0x09,
+  TMP            = 0x0A,
+  BUTTON         = 0x0B,
+  BUZZER         = 0x0C,
+  LED_RED        = 0x0D,
+  LED_GREEN      = 0x0E,
+  LED_BLUE       = 0x0F,
+  WIFI_CRED      = 0x10,
+
+};
 
 enum class ATE401Indicate : uint8_t
 {
@@ -34,6 +39,14 @@ enum class ATE401Indicate : uint8_t
   ON = 1,
   PWM = 2,
   BLINK = 3,
+};
+
+struct Esp2MspBlink
+{
+  // count intervals, count == 0 infinity repeate
+  uint16_t count;
+  uint16_t intervalMs;
+  uint16_t duartionMs;
 };
 
 struct ATE401State {
@@ -84,6 +97,7 @@ uint8_t calculateCRC8(const void* d, size_t len);
 bool checkCRC8(const std::vector<uint8_t>& data, uint8_t expectedCRC);
 bool checkCRC8Pack(std::vector<uint8_t>& data);
 std::vector<uint8_t> packed(std::initializer_list<uint8_t> args);
+std::vector<uint8_t> packed(const void* args, size_t size);
 std::vector<uint8_t> unpacked(std::vector<uint8_t>& data);
 Mode ate401_parser(std::vector<uint8_t>& data);
 std::vector<uint8_t> ack(uint8_t cmd, ATE401State& state);

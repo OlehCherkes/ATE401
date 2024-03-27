@@ -310,7 +310,7 @@ BUZZER pin sets state, then test equipment takes measurements.
 
   ex:
   BUZZER ON
-  ['#', '@', '!', 3 /*LENGTH*/, 0x0C /*BUZZER*/, 1 /*STATE*/, crc8]
+  ['#', '@', '!', 4 /*LENGTH*/, 0x0C /*BUZZER*/, 1 /*STATE*/, crc8]
 
   BUZZER OFF
   ['#', '@', '!', 4 /*LENGTH*/, 0x0C /*BUZZER*/, 0 /*STATE*/, crc8]
@@ -327,10 +327,10 @@ BUZZER pin sets state, then test equipment takes measurements.
 
   ex:
   BUZZER PWM
-  ['#', '@', '!', 5 /*LENGTH*/, 0x0C /*BUZZER*/, 2 /*STATE*/, /*PROPERTIES*/, crc8]
+  ['#', '@', '!', 5 /*LENGTH*/, 0x0C /*BUZZER*/, 2 /*STATE*/, 6 /*PROPERTIES*/, crc8]
 
   BUZZER BLINK
-  ['#', '@', '!', 5 /*LENGTH*/, 0x0C /*BUZZER*/, 3 /*STATE*/, /*PROPERTIES*/, crc8]
+  ['#', '@', '!', 5 /*LENGTH*/, 0x0C /*BUZZER*/, 3 /*STATE*/, 6 /*PROPERTIES*/, crc8]
 ```
 
 * PROPERTIES

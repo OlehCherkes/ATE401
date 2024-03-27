@@ -19,6 +19,7 @@ const std::string MAGIC = "#@!";
 
 Mode mode{};
 ATE401State state;
+Esp2MspBlink interval;
 
 // This is the CRC8 polynomial x^8 + x^2 + x^1 + 1 (0x07)
 const uint8_t crc8Table[256] = {
@@ -87,6 +88,23 @@ std::vector<uint8_t> packed(std::initializer_list<uint8_t> args)
   data.push_back(args.size() + 2);  // +2 bytes lenght and crc
 
   std::copy(std::begin(args), std::end(args), std::back_inserter(data));
+
+  uint8_t crcResult = calculateCRC8(data.data(), data.size());
+  data.push_back(crcResult);
+
+  return data;
+}
+
+std::vector<uint8_t> packed(const void* args, size_t size) {
+  std::vector<uint8_t> data;
+  data.reserve(MAGIC.size() + size + 2); // memory reservation, +2 bytes length and crc 
+
+  std::copy(std::begin(MAGIC), std::end(MAGIC), std::back_inserter(data));
+
+  // insert length
+  data.push_back(size + 2);  // +2 bytes length and crc
+
+  std::copy(reinterpret_cast<uint8_t*>(&args), reinterpret_cast<uint8_t*>(&args) + size, std::back_inserter(data));
 
   uint8_t crcResult = calculateCRC8(data.data(), data.size());
   data.push_back(crcResult);
