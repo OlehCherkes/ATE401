@@ -86,6 +86,9 @@ Examples of using commands
 Checking the data transmission.
 ```markdown
   [MAGIC:3][LENGTH:1][ECHO:1][CRC8:1]
+
+  ex:
+  ['#', '@', '!', 3 /*LENGTH*/, 0x00 /*ECHO*/, crc8]
 ```
 ---------------------------------
 
@@ -95,6 +98,9 @@ Checking the data transmission.
 After sending any command, the device under test sends a response with a description of the state of the device, various parameters and flags.
 ```markdown
   [MAGIC:3][LENGTH:1][ACK:1][ATE401State:sizeoff(ATE401State)][CRC8:1]
+
+  ex:
+  ['#', '@', '!', 3 + sizeof(ATE401State) /*LENGTH*/, 0x01 /*ACK*/, [ATE401State : sizeof(ATE401State)] /*ATE401State*/, crc8]
 ```
 
 [ATE401State structure ](#chapter-23)
@@ -121,6 +127,13 @@ After sending any command, the device under test sends a response with a descrip
 Puts the device in test mode.
 ```markdown
   [MAGIC:3][LENGTH:1][TEST_MODE:1][ATE_PARAM:1][CRC8:1]
+
+  ex:
+  Start TestMode
+  ['#', '@', '!', 4 /*LENGTH*/, 0x02 /*TEST_MODE*/, 1 /*ATE_PARAM*/, crc8]
+
+  End TestMode
+  ['#', '@', '!', 4 /*LENGTH*/, 0x02 /*TEST_MODE*/, 0 /*ATE_PARAM*/, crc8]
 ```
 * ATE_PARAM
     * OFF = 0
@@ -134,6 +147,9 @@ Used [UnixTime](https://en.wikipedia.org/wiki/Unix_time)
 
 ```markdown
   [MAGIC:3][LENGTH:1][SET_TIME:1][TIME:4|Little-Endian][CRC8:1]
+
+  ex:
+  ['#', '@', '!', 7 /*LENGTH*/, 0x03 /*SET_TIME*/, 1647470287 /*TIME | Little-Endian*/, crc8]
 ```
 
 ```c++
@@ -163,6 +179,9 @@ Read byte.
 To check the TXD line in ip401 EEPROM sets 1 byte using test equipment (I2C), and then reads this byte using the UART. TFor checking bytes are compared.
 ```markdown
   [MAGIC:3][LENGTH:1][TXD:1][CRC8:1]
+
+  ex:
+  ['#', '@', '!', 3 /*LENGTH*/, 0x04 /*TXD*/, crc8]
 ```
 ---------------------------------
 
@@ -174,6 +193,9 @@ Set byte.
 To test the RXD line in ip401 EEPROM sets 1 byte via UART, and then this byte is read through the I2C interface. For checking bytes are compared.
 ```markdown
   [MAGIC:3][LENGTH:1][RXD:1][PARAM:1][CRC8:1]
+
+  ex:
+  ['#', '@', '!', 4 /*LENGTH*/, 0x05 /*RXD*/, 'A' /*PARAM*/, crc8]
 ```
 * PARAM
     * 1 char
@@ -187,6 +209,13 @@ Set pin state.
 OUT pin sets to LOW or HIGH state, then test equipment takes measurements.
 ```markdown
   [MAGIC:3][LENGTH:1][OUT:1][STATE:1][CRC8:1]
+
+  ex:
+  OUT ON
+  ['#', '@', '!', 4 /*LENGTH*/, 0x06 /*OUT*/, 1 /*STATE*/, crc8]
+
+  OUT OFF
+  ['#', '@', '!', 4 /*LENGTH*/, 0x06 /*OUT*/, 0 /*STATE*/, crc8]
 ```
 * STATE
     * OFF = 0
@@ -201,6 +230,9 @@ Read pin state.
 RTE pin sets to LOW or HIGH via the test equipment, then ip401 reads the input measurement result.
 ```markdown
   [MAGIC:3][LENGTH:1][RTE:1][CRC8:1]
+
+  ex:
+  ['#', '@', '!', 3 /*LENGTH*/, 0x07 /*RTE*/, crc8]
 ```
 ---------------------------------
 
@@ -212,6 +244,9 @@ Read pin state.
 DC pin sets to LOW or HIGH via the test equipment, then ip401 reads the input measurement result.
 ```markdown
   [MAGIC:3][LENGTH:1][DC:1][CRC8:1]
+
+  ex:
+  ['#', '@', '!', 3 /*LENGTH*/, 0x08 /*DC*/, crc8]
 ```
 ---------------------------------
 
@@ -223,6 +258,13 @@ Set pin state.
 REL pin sets to LOW or HIGH state, then test equipment takes measurements.
 ```markdown
   [MAGIC:3][LENGTH:1][REL:1][STATE:1][CRC8:1]
+
+  ex:
+  REL ON
+  ['#', '@', '!', 4 /*LENGTH*/, 0x09 /*REL*/, 1 /*STATE*/, crc8]
+
+  REL OFF
+  ['#', '@', '!', 4 /*LENGTH*/, 0x09 /*REL*/, 0 /*STATE*/, crc8]
 ```
 * STATE
     * OFF = 0
@@ -237,6 +279,9 @@ Read pin state.
 TMP pin sets to LOW or HIGH via the test equipment, then ip401 reads the input measurement result.
 ```markdown
   [MAGIC:3][LENGTH:1][TMP:1][CRC8:1]
+
+  ex:
+  ['#', '@', '!', 3 /*LENGTH*/, 0x0A /*TMP*/, crc8]
 ```
 ---------------------------------
 
@@ -248,6 +293,9 @@ Read pin state.
 BUTTON pin sets to LOW or HIGH via the test equipment, then ip401 reads the input measurement result.
 ```markdown
   [MAGIC:3][LENGTH:1][BUTTON:1][CRC8:1]
+
+  ex:
+  ['#', '@', '!', 3 /*LENGTH*/, 0x0B /*BUTTON*/, crc8]
 ```
 ---------------------------------
 
@@ -259,6 +307,13 @@ Set pin state.
 BUZZER pin sets state, then test equipment takes measurements.
 ```markdown
   [MAGIC:3][LENGTH:1][BUZZER:1][STATE:1][CRC8:1]
+
+  ex:
+  BUZZER ON
+  ['#', '@', '!', 3 /*LENGTH*/, 0x0C /*BUZZER*/, 1 /*STATE*/, crc8]
+
+  BUZZER OFF
+  ['#', '@', '!', 4 /*LENGTH*/, 0x0C /*BUZZER*/, 0 /*STATE*/, crc8]
 ```
 * STATE
     * OFF = 0
@@ -269,6 +324,13 @@ BUZZER pin sets state, then test equipment takes measurements.
 *if the state is PWM or BLINK, this packet format is used
 ```markdown
   [MAGIC:3][LENGTH:1][BUZZER:1][STATE:1][PROPERTIES:6][CRC8:1]
+
+  ex:
+  BUZZER PWM
+  ['#', '@', '!', 5 /*LENGTH*/, 0x0C /*BUZZER*/, 2 /*STATE*/, /*PROPERTIES*/, crc8]
+
+  BUZZER BLINK
+  ['#', '@', '!', 5 /*LENGTH*/, 0x0C /*BUZZER*/, 3 /*STATE*/, /*PROPERTIES*/, crc8]
 ```
 
 * PROPERTIES
@@ -287,6 +349,13 @@ Set pin state.
 LED_RED pin sets to LOW or HIGH state, then test equipment takes measurements.
 ```markdown
   [MAGIC:3][LENGTH:1][LED_RED:1][STATE:1][CRC8:1]
+
+  ex:
+  LED_RED ON
+  ['#', '@', '!', 4 /*LENGTH*/, 0x0D /*LED_RED*/, 1 /*STATE*/, crc8]
+
+  LED_RED OFF
+  ['#', '@', '!', 4 /*LENGTH*/, 0x0D /*LED_RED*/, 0 /*STATE*/, crc8]
 ```
 * STATE
     * OFF = 0
@@ -301,6 +370,13 @@ Set pin state.
 LED_RED pin sets to LOW or HIGH state, then test equipment takes measurements.
 ```markdown
   [MAGIC:3][LENGTH:1][LED_GREEN:1][STATE:1][CRC8:1]
+
+  ex:
+  LED_GREEN ON
+  ['#', '@', '!', 4 /*LENGTH*/, 0x0E /*LED_GREEN*/, 1 /*STATE*/, crc8]
+
+  LED_GREEN OFF
+  ['#', '@', '!', 4 /*LENGTH*/, 0x0E /*LED_GREEN*/, 0 /*STATE*/, crc8]
 ```
 * STATE
     * OFF = 0
@@ -315,6 +391,13 @@ Set pin state.
 LED_RED pin sets to LOW or HIGH state, then test equipment takes measurements.
 ```markdown
   [MAGIC:3][LENGTH:1][LED_BLUE:1][STATE:1][CRC8:1]
+
+  ex:
+  LED_BLUE ON
+  ['#', '@', '!', 4 /*LENGTH*/, 0x0F /*LED_BLUE*/, 1 /*STATE*/, crc8]
+
+  LED_BLUE OFF
+  ['#', '@', '!', 4 /*LENGTH*/, 0x0F /*LED_BLUE*/, 0 /*STATE*/, crc8]
 ```
 * STATE
     * OFF = 0
@@ -329,6 +412,10 @@ Set Wi-Fi credential.
 If the connection is successful, ip401 returns the IP address.
 ```markdown
   [WIFI_CRED:1][SSID:N][NTS][PASSWORD:M][NTS]
+
+  ex:
+  WIFI_CRED: AP = 'ITV', PASSWORD = 'PSWD'
+  ['#', '@', '!', 11 /*LENGTH*/, 0x10 /*WIFI_CRED*/, 'I', 'T', 'V', 0x00 /*NTS*/, 'P', 'S', 'W', 'D', 0x00 /*NTS*/, crc8]
 ```
   * NTS - 0x00 "null terminated string"
 ---------------------------------
