@@ -100,7 +100,7 @@ After sending any command, the device under test sends a response with a descrip
   [MAGIC:3][LENGTH:1][ACK:1][ATE401State:sizeoff(ATE401State)][CRC8:1]
 
   ex:
-  ['#', '@', '!', 3 + sizeof(ATE401State) /*LENGTH*/, 0x01 /*ACK*/, [ATE401State : sizeof(ATE401State)] /*ATE401State*/, crc8]
+  ['#', '@', '!', 3 + sizeof(ATE401State) /*LENGTH*/, 0x01 /*ACK*/, [ATE401State : sizeof(ATE401State)], crc8]
 ```
 
 [ATE401State structure ](#chapter-23)
