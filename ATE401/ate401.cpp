@@ -82,14 +82,23 @@ std::vector<uint8_t> packed(std::initializer_list<uint8_t> args)
   data.reserve(MAGIC.size() + args.size() + 2); // memory reservation, +2 bytes lenght and crc 
 
   std::copy(std::begin(MAGIC), std::end(MAGIC), std::back_inserter(data));
-  std::copy(std::begin(args), std::end(args), std::back_inserter(data));
 
-  data.insert(data.begin() + MAGIC.size(), data.size());
+  // insert lenght
+  data.push_back(args.size() + 2);  // +2 bytes lenght and crc
+
+  std::copy(std::begin(args), std::end(args), std::back_inserter(data));
 
   uint8_t crcResult = calculateCRC8(data.data(), data.size());
   data.push_back(crcResult);
 
   return data;
+}
+
+std::vector<uint8_t> unpacked(std::vector<uint8_t>& data)
+{
+  std::vector<uint8_t> res(data.begin() + MAGIC.size() + 1, data.end() - 1); // get data without magic number, len and crc
+
+  return res;
 }
 
 std::vector<uint8_t> ack(uint8_t cmd, ATE401State& state)
@@ -109,13 +118,6 @@ std::vector<uint8_t> ack(uint8_t cmd, ATE401State& state)
   data.push_back(crcResult);
 
   return data;
-}
-
-std::vector<uint8_t> unpacked(std::vector<uint8_t>& data)
-{
-  std::vector<uint8_t> res(data.begin() + MAGIC.size() + 1, data.end() - 1); // get data without magic number, len and crc
-
-  return res;
 }
 
 Mode ate401_parser(std::vector<uint8_t>& data)
@@ -159,10 +161,6 @@ Mode ate401_parser(std::vector<uint8_t>& data)
                   (static_cast<uint32_t>(data.at(3)) << 8) |
                   (static_cast<uint32_t>(data.at(4)) << 16) |
                   (static_cast<uint32_t>(data.at(5)) << 24);
-      break;
-
-    case POWER:
-      mode.power_delay_ms = (static_cast<uint32_t>(data.at(2)) << 0) | (static_cast<uint32_t>(data.at(3)) << 8);
       break;
   }
 

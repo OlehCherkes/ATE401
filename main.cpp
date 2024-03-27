@@ -2,7 +2,7 @@
 #include <string>
 #include <cstdint>
 #include "ATE401/ate401.h"
-#include "crc.h"
+//#include "crc.h"
 
 int main(void)
 {
@@ -47,12 +47,12 @@ int main(void)
 
 
   //---------------------- ACK ------------------------------ 
-  res = ack(ACK, state);
+  //res = ack(ACK, state);
 
-  for (const auto& element : res) {
-    std::cout << "0x" << std::hex << static_cast<int>(element) << " ";
-  }
-  std::cout << std::endl;
+  //for (const auto& element : res) {
+  //  std::cout << "0x" << std::hex << static_cast<int>(element) << " ";
+  //}
+  //std::cout << std::endl;
 
 	return 0;
 }

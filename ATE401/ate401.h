@@ -8,11 +8,20 @@
 constexpr uint8_t ECHO           = 0x00;
 constexpr uint8_t ACK            = 0x01;
 constexpr uint8_t TEST_MODE      = 0x02;
-constexpr uint8_t LED_RED        = 0x09;
-constexpr uint8_t LED_GREEN      = 0x0A;
-constexpr uint8_t BUZZER         = 0x0B;
-constexpr uint8_t SET_TIME       = 0x0C;
-constexpr uint8_t POWER          = 0x0F;
+constexpr uint8_t SET_TIME       = 0x03;
+constexpr uint8_t TXD            = 0x04;
+constexpr uint8_t RXD            = 0x05;
+constexpr uint8_t OUT            = 0x06;
+constexpr uint8_t RTE            = 0x07;
+constexpr uint8_t DC             = 0x08;
+constexpr uint8_t REL            = 0x09;
+constexpr uint8_t TMP            = 0x0A;
+constexpr uint8_t BUTTON         = 0x0B;
+constexpr uint8_t BUZZER         = 0x0C;
+constexpr uint8_t LED_RED        = 0x0D;
+constexpr uint8_t LED_GREEN      = 0x0E;
+constexpr uint8_t LED_BLUE       = 0x0F;
+constexpr uint8_t WIFI_CRED      = 0x10;
 
 extern const std::string MAGIC;
 extern const uint8_t crc8Table[256];
@@ -28,14 +37,21 @@ enum class ATE401Indicate : uint8_t
 };
 
 struct ATE401State {
-  uint8_t mvbus : 1;        // power HUB    : normal
-  uint8_t mvbat : 1;        // bat   HUB    : normal
-  uint8_t wifiConnect : 1;  // eth link     : normal
-  uint8_t wifiRssi;         // bat voltage in mV
-  uint8_t gsmRssi;          // bat voltage in mV
-
-  uint8_t batMv[2];         // bat voltage in mV
-  uint8_t wifiIp[4];        // ip over wifi
+  uint16_t version;
+  uint32_t time;
+  uint8_t txd;
+  uint8_t rxd;
+  uint8_t output;
+  uint8_t request_to_exit;
+  uint8_t door_control;
+  uint8_t rellay;
+  uint8_t tamper;
+  uint8_t button;
+  uint8_t buzzer;
+  uint8_t led_red;
+  uint8_t led_green;
+  uint8_t led_blue;
+  uint32_t ip_address;
 };
 
 struct Mode {
