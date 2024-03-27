@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <cstdint>
-#include "ATE401/ate401.h"
+#include "ate401.h"
 //#include "crc.h"
 
 int main(void)
@@ -19,7 +19,7 @@ int main(void)
  //----------------------- PACK -------------------------------
   std::cout << std::endl;
 
-  std::vector<uint8_t> res = packed({ LED_RED, static_cast<uint8_t>(ATE401Indicate::ON) });
+  std::vector<uint8_t> res = packed({ ECHO });
 
   std::cout << "Packed elements:" << std::endl;
   for (const auto& element : res) {
