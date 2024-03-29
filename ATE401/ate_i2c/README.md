@@ -1,4 +1,4 @@
-# Protocol ATE401 'Raspberry Pi' <-> 'ATE401' | 19.03.2024
+# Protocol ATE401 I2C 'ATE' <-> 'IP401' | 19.03.2024
 
 IPL License
 
@@ -12,32 +12,20 @@ Permission is hereby granted, to the employees of U-Prox company.
 * [Examples of using commands](#chapter-3)
   * [ECHO](#chapter-4)
   * [ACK](#chapter-5)
-  * [TEST_MODE](#chapter-6)
-  * [SET_TIME](#chapter-7)
-  * [TXD](#chapter-8)
-  * [RXD](#chapter-9)
-  * [OUT](#chapter-10)
-  * [RTE](#chapter-11)
-  * [DC](#chapter-12)
-  * [REL](#chapter-13)
-  * [TMP](#chapter-14)
-  * [BUTTON](#chapter-15)
-  * [BUZZER](#chapter-16)
-  * [LED_RED](#chapter-17)
-  * [LED_GREEN](#chapter-18)
-  * [LED_BLUE](#chapter-19)
-  * [WIFI_CRED](#chapter-20)
+  * [TXD](#chapter-6)
+  * [RTE](#chapter-7)
+  * [DC](#chapter-8)
+  * [TMP](#chapter-9)
+  * [BUTTON](#chapter-10)
   
-* [Reply](#chapter-21)
-* [Test points](#chapter-22)
-* [Optional structures](#chapter-23)
+* [Reply](#chapter-11)
+* [Test points](#chapter-12)
+* [Optional structures](#chapter-13)
 
 <a id="chapter-0"></a>
 Overview
 ===============================================================================================================================
-The data exchange protocol between Raspberry Pi and test equipment is IP401. This protocol facilitates seamless communication and data transfer between the Raspberry Pi and the testing equipment. It specifies the format, structure, and rules for transmitting and receiving data, allowing the Raspberry Pi and the test equipment to understand and interpret the information exchanged between them accurately.
-
-To get started, the device needs to be put into test mode by sending the command **TEST_MODE**
+The data exchange I2C protocol between Raspberry Pi and test equipment ATE. This protocol facilitates seamless communication and data transfer. It specifies the format, structure, and rules for transmitting and receiving data, allowing the Raspberry Pi and the test equipment to understand and interpret the information exchanged between them accurately.
 
 ![ate](/doc/ate.png)
 
@@ -59,21 +47,11 @@ Commands part
 ```
   ECHO              = 0x00
   ACK               = 0x01
-  TEST_MODE         = 0x02
-  SET_TIME          = 0x03
-  TXD               = 0x04
-  RXD               = 0x05
-  OUT               = 0x06
-  RTE               = 0x07
-  DC                = 0x08
-  REL               = 0x09
-  TMP               = 0x0A
-  BUTTON            = 0x0B
-  BUZZER            = 0x0C
-  LED_RED           = 0x0D
-  LED_GREEN         = 0x0E
-  LED_BLUE          = 0x0F
-  WIFI_CRED         = 0x10
+  TXD               = 0x02
+  RTE               = 0x03
+  DC                = 0x04
+  TMP               = 0x05
+  BUTTON            = 0x06
   ```
 
 <a id="chapter-3"></a>
@@ -103,76 +81,25 @@ After sending any command, the device under test sends a response with a descrip
   ['#', '@', '!', 3 + sizeof(ATE401State) /*LENGTH*/, 0x01 /*ACK*/, [ATE401State : sizeof(ATE401State)], crc8]
 ```
 
-[ATE401State structure ](#chapter-23)
+[ATE401State structure ](#chapter-100)
   - Version
   - Time
-  - TXD
   - RXD
   - OUT
-  - RTE
-  - DC
   - REL
-  - TMP
-  - Capacitive Button
   - Buzzer
   - Led Red 
   - Led Green
   - Led Blue
-  - IP Address 
+  - Voltage TP3
+  - Voltage TP13
+  - Voltage TP18
+
+    *voltage TP3, TP13, TP18 - measured automatically
 ---------------------------------
 
 <a id="chapter-6"></a>
-**TEST_MODE**         0x02
-
-Puts the device in test mode.
-```markdown
-  [MAGIC:3][LENGTH:1][TEST_MODE:1][ATE_PARAM:1][CRC8:1]
-
-  ex:
-  Start TestMode
-  ['#', '@', '!', 4 /*LENGTH*/, 0x02 /*TEST_MODE*/, 1 /*ATE_PARAM*/, crc8]
-
-  End TestMode
-  ['#', '@', '!', 4 /*LENGTH*/, 0x02 /*TEST_MODE*/, 0 /*ATE_PARAM*/, crc8]
-```
-* ATE_PARAM
-    * OFF = 0
-    * ON = 1
----------------------------------
-
-<a id="chapter-7"></a>
-**SET_TIME**         0x03
-
-Used [UnixTime](https://en.wikipedia.org/wiki/Unix_time)
-
-```markdown
-  [MAGIC:3][LENGTH:1][SET_TIME:1][TIME:4|Little-Endian][CRC8:1]
-
-  ex:
-  ['#', '@', '!', 7 /*LENGTH*/, 0x03 /*SET_TIME*/, 1647470287 /*TIME | Little-Endian*/, crc8]
-```
-
-```c++
-// Packing time to Little-Endian format
-uint32_t time_le = 1616183220; 
-uint8_t time_bytes[4];
-
-time_bytes[0] = (time_le >> 0) & 0xFF;
-time_bytes[1] = (time_le >> 8) & 0xFF;
-time_bytes[2] = (time_le >> 16) & 0xFF;
-time_bytes[3] = (time_le >> 24) & 0xFF;
-
-// Unpacking from Little-Endian format to uint32_t
-uint32_t time_le =
-    (static_cast<uint32_t>(time_bytes[0]) << 0) |
-    (static_cast<uint32_t>(time_bytes[1]) << 8) |
-    (static_cast<uint32_t>(time_bytes[2]) << 16) |
-    (static_cast<uint32_t>(time_bytes[3]) << 24);
-```
----------------------------------
-
-<a id="chapter-8"></a>
-**TXD**         0x04
+**TXD**         0x02
 
 Read byte.
 
@@ -185,45 +112,8 @@ To check the TXD line in ip401 EEPROM sets 1 byte using test equipment (I2C), an
 ```
 ---------------------------------
 
-<a id="chapter-9"></a>
-**RXD**         0x05
-
-Set byte.
-
-To test the RXD line in ip401 EEPROM sets 1 byte via UART, and then this byte is read through the I2C interface. For checking bytes are compared.
-```markdown
-  [MAGIC:3][LENGTH:1][RXD:1][PARAM:1][CRC8:1]
-
-  ex:
-  ['#', '@', '!', 4 /*LENGTH*/, 0x05 /*RXD*/, 'A' /*PARAM*/, crc8]
-```
-* PARAM
-    * 1 char
----------------------------------
-
-<a id="chapter-10"></a>
-**OUT**         0x06
-
-Set pin state.
-
-OUT pin sets to LOW or HIGH state, then test equipment takes measurements.
-```markdown
-  [MAGIC:3][LENGTH:1][OUT:1][STATE:1][CRC8:1]
-
-  ex:
-  OUT ON
-  ['#', '@', '!', 4 /*LENGTH*/, 0x06 /*OUT*/, 1 /*STATE*/, crc8]
-
-  OUT OFF
-  ['#', '@', '!', 4 /*LENGTH*/, 0x06 /*OUT*/, 0 /*STATE*/, crc8]
-```
-* STATE
-    * OFF = 0
-    * ON = 1
----------------------------------
-
-<a id="chapter-11"></a>
-**RTE**         0x07
+<a id="chapter-7"></a>
+**RTE**         0x03
 
 Read pin state.
 
@@ -236,8 +126,8 @@ RTE pin sets to LOW or HIGH via the test equipment, then ip401 reads the input m
 ```
 ---------------------------------
 
-<a id="chapter-12"></a>
-**DC**         0x08
+<a id="chapter-8"></a>
+**DC**         0x04
 
 Read pin state.
 
@@ -250,29 +140,8 @@ DC pin sets to LOW or HIGH via the test equipment, then ip401 reads the input me
 ```
 ---------------------------------
 
-<a id="chapter-13"></a>
-**REL**         0x09
-
-Set pin state.
-
-REL pin sets to LOW or HIGH state, then test equipment takes measurements.
-```markdown
-  [MAGIC:3][LENGTH:1][REL:1][STATE:1][CRC8:1]
-
-  ex:
-  REL ON
-  ['#', '@', '!', 4 /*LENGTH*/, 0x09 /*REL*/, 1 /*STATE*/, crc8]
-
-  REL OFF
-  ['#', '@', '!', 4 /*LENGTH*/, 0x09 /*REL*/, 0 /*STATE*/, crc8]
-```
-* STATE
-    * OFF = 0
-    * ON = 1
----------------------------------
-
-<a id="chapter-14"></a>
-**TMP**         0x0A
+<a id="chapter-9"></a>
+**TMP**         0x05
 
 Read pin state.
 
@@ -285,8 +154,8 @@ TMP pin sets to LOW or HIGH via the test equipment, then ip401 reads the input m
 ```
 ---------------------------------
 
-<a id="chapter-15"></a>
-**BUTTON**         0x0B
+<a id="chapter-10"></a>
+**BUTTON**         0x06
 
 Read pin state.
 
@@ -299,158 +168,34 @@ BUTTON pin sets to LOW or HIGH via the test equipment, then ip401 reads the inpu
 ```
 ---------------------------------
 
-<a id="chapter-16"></a>
-**BUZZER**           0x0C
-
-Set pin state.
-
-BUZZER pin sets state, then test equipment takes measurements.
-```markdown
-  [MAGIC:3][LENGTH:1][BUZZER:1][STATE:1][CRC8:1]
-
-  ex:
-  BUZZER ON
-  ['#', '@', '!', 4 /*LENGTH*/, 0x0C /*BUZZER*/, 1 /*STATE*/, crc8]
-
-  BUZZER OFF
-  ['#', '@', '!', 4 /*LENGTH*/, 0x0C /*BUZZER*/, 0 /*STATE*/, crc8]
-```
-* STATE
-    * OFF = 0
-    * ON = 1
-    * PWM = 2
-    * BLINK = 3
-
-*if the state is PWM or BLINK, this packet format is used
-```markdown
-  [MAGIC:3][LENGTH:1][BUZZER:1][STATE:1][PROPERTIES:6][CRC8:1]
-
-  ex:
-  BUZZER PWM
-  ['#', '@', '!', 5 /*LENGTH*/, 0x0C /*BUZZER*/, 2 /*STATE*/, 6 /*PROPERTIES*/, crc8]
-
-  BUZZER BLINK
-  ['#', '@', '!', 5 /*LENGTH*/, 0x0C /*BUZZER*/, 3 /*STATE*/, 6 /*PROPERTIES*/, crc8]
-```
-
-* PROPERTIES
-    * COUNT : 2
-    * INTERVAL_MS : 2
-    * DURATION_MS : 2
-
-    ** count intervals == 0 (infinity repeate)
----------------------------------
-
-<a id="chapter-17"></a>
-**LED_RED**           0x0D
-
-Set pin state.
-
-LED_RED pin sets to LOW or HIGH state, then test equipment takes measurements.
-```markdown
-  [MAGIC:3][LENGTH:1][LED_RED:1][STATE:1][CRC8:1]
-
-  ex:
-  LED_RED ON
-  ['#', '@', '!', 4 /*LENGTH*/, 0x0D /*LED_RED*/, 1 /*STATE*/, crc8]
-
-  LED_RED OFF
-  ['#', '@', '!', 4 /*LENGTH*/, 0x0D /*LED_RED*/, 0 /*STATE*/, crc8]
-```
-* STATE
-    * OFF = 0
-    * ON = 1
----------------------------------
-
-<a id="chapter-18"></a>
-**LED_GREEN**         0x0E
-
-Set pin state.
-
-LED_RED pin sets to LOW or HIGH state, then test equipment takes measurements.
-```markdown
-  [MAGIC:3][LENGTH:1][LED_GREEN:1][STATE:1][CRC8:1]
-
-  ex:
-  LED_GREEN ON
-  ['#', '@', '!', 4 /*LENGTH*/, 0x0E /*LED_GREEN*/, 1 /*STATE*/, crc8]
-
-  LED_GREEN OFF
-  ['#', '@', '!', 4 /*LENGTH*/, 0x0E /*LED_GREEN*/, 0 /*STATE*/, crc8]
-```
-* STATE
-    * OFF = 0
-    * ON = 1
----------------------------------
-
-<a id="chapter-19"></a>
-**LED_BLUE**         0x0F
-
-Set pin state.
-
-LED_RED pin sets to LOW or HIGH state, then test equipment takes measurements.
-```markdown
-  [MAGIC:3][LENGTH:1][LED_BLUE:1][STATE:1][CRC8:1]
-
-  ex:
-  LED_BLUE ON
-  ['#', '@', '!', 4 /*LENGTH*/, 0x0F /*LED_BLUE*/, 1 /*STATE*/, crc8]
-
-  LED_BLUE OFF
-  ['#', '@', '!', 4 /*LENGTH*/, 0x0F /*LED_BLUE*/, 0 /*STATE*/, crc8]
-```
-* STATE
-    * OFF = 0
-    * ON = 1
----------------------------------
-
-<a id="chapter-20"></a>
-**WIFI_CRED**         0x10
-
-Set Wi-Fi credential.
-
-If the connection is successful, ip401 returns the IP address.
-```markdown
-  [WIFI_CRED:1][SSID:N][NTS][PASSWORD:M][NTS]
-
-  ex:
-  WIFI_CRED: AP = 'ITV', PASSWORD = 'PSWD'
-  ['#', '@', '!', 11 /*LENGTH*/, 0x10 /*WIFI_CRED*/, 'I', 'T', 'V', 0x00 /*NTS*/, 'P', 'S', 'W', 'D', 0x00 /*NTS*/, crc8]
-```
-  * NTS - 0x00 "null terminated string"
----------------------------------
-
-<a id="chapter-21"></a>
+<a id="chapter-11"></a>
 Reply
 ===============================================================================================================================
 Upon successful delivery and reading of the command, the testing equipment provides a response comand ACK indicating either success or failure.
 
-<a id="chapter-24"></a>
+<a id="chapter-100"></a>
 The data will come in the form of a structure:
 ```c++
 struct ATE401State {
     uint16_t version;
     uint32_t time;
-    uint8_t txd;
     uint8_t rxd;
     uint8_t output;
-    uint8_t request_to_exit;
-    uint8_t door_control;
     uint8_t rellay;
-    uint8_t tamper;
-    uint8_t button;
     uint8_t buzzer;
     uint8_t led_red;
     uint8_t led_green;
     uint8_t led_blue;
-    uint32_t ip_address;
+    float voltage_TP3;
+    float voltage_TP13;
+    float voltage_TP18;
   };
 ```
 
-<a id="chapter-22"></a>
+<a id="chapter-12"></a>
 Test points
 ===============================================================================================================================
-  The value of the ip401 gpio outputs measures the test equipment, after which the data can be read via I2C. The value from the gpio outputs is measured by ip401, it can be read via UART.
+The value of the ip401 gpio outputs is measured by the test equipment, after which the data can be transferred via I2C to the Raspberry Pi.
 
 ```markdown
   TP1 - clock calibration
@@ -479,7 +224,7 @@ Test points
   LED - RED, GREEN and BLUE (send command on/off via UART, read value via I2C)
 ```
 
-<a id="chapter-23"></a>
+<a id="chapter-13"></a>
 Optional structures
 ===============================================================================================================================
 
@@ -488,21 +233,11 @@ Optional structures
   {
     ECHO       = 0x00,
     ACK        = 0x01,
-    TEST_MODE  = 0x02,
-    SET_TIME   = 0x03,
-    TXD        = 0x04,
-    RXD        = 0x05,
-    OUT        = 0x06,
-    RTE        = 0x07,
-    DC         = 0x08,
-    REL        = 0x09,
-    TMP        = 0x0A,
-    BUTTON     = 0x0B,
-    BUZZER     = 0x0C,
-    LED_RED    = 0x0D,
-    LED_GREEN  = 0x0E,
-    LED_BLUE   = 0x0F,
-    WIFI_CRED  = 0x10,
+    TXD        = 0x02,
+    RTE        = 0x03,
+    DC         = 0x04,
+    TMP        = 0x05,
+    BUTTON     = 0x06,
   };
 ```
 ```c++
@@ -512,29 +247,3 @@ Optional structures
     ON = 1,
   };
 ```
-```c++
-  enum class ATE401Indicate : uint8_t
-  {
-    OFF = 0,
-    ON = 1,
-    PWM = 2,
-    BLINK = 3,
-  };
-```
-```c++
-  struct ATE401Pwm
-  {
-    uint8_t startLevel;
-    uint8_t endLevel;
-    uint8_t duartionSec;
-  };
-```
-```c++
-  struct ATE401Blink
-  {
-    // count intervals == 0 (infinity repeate)
-    uint16_t count;
-    uint16_t intervalMs;
-    uint16_t duartionMs;
-  };
-  ```
