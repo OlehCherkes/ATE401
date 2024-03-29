@@ -3,6 +3,7 @@
 #include <vector>
 #include <cstdarg>
 #include <iterator>
+#include <algorithm>
 #include "ate401.h"
 
 /*
@@ -104,7 +105,7 @@ std::vector<uint8_t> packed(const void* args, size_t size) {
   // insert length
   data.push_back(size + 2);  // +2 bytes length and crc
 
-  std::copy(reinterpret_cast<uint8_t*>(&args), reinterpret_cast<uint8_t*>(&args) + size, std::back_inserter(data));
+  std::copy(reinterpret_cast<const uint8_t*>(args), reinterpret_cast< const uint8_t*>(args) + size, std::back_inserter(data));
 
   uint8_t crcResult = calculateCRC8(data.data(), data.size());
   data.push_back(crcResult);
@@ -138,32 +139,33 @@ std::vector<uint8_t> ack(uint8_t cmd, ATE401State& state)
   return data;
 }
 
+
 Mode ate401_parser(std::vector<uint8_t>& data)
 {
-  uint8_t cmd = data.at(0);
+  Ate401Cmd cmd = static_cast<Ate401Cmd>(data.at(0));
 
   switch (cmd) {
-    case ECHO:
+    case Ate401Cmd::ECHO:
       mode.echo = true;
       break;
 
-    case ACK:
+    case Ate401Cmd::ACK:
    
       break;
 
-    case TEST_MODE:
+    case Ate401Cmd::TEST_MODE:
       mode.ate = data.at(1);
       break;
 
-    case LED_RED:
+    case Ate401Cmd::LED_RED:
       mode.led.red = data.at(1);
       break;
 
-    case LED_GREEN:
+    case Ate401Cmd::LED_GREEN:
       mode.led.green = data.at(1);
       break;
 
-    case BUZZER:
+    case Ate401Cmd::BUZZER:
       mode.buzzer.state = data.at(1);
 
       if (mode.buzzer.state == static_cast<uint8_t>(ATE401Indicate::PWM))
@@ -174,7 +176,7 @@ Mode ate401_parser(std::vector<uint8_t>& data)
       }
       break;
 
-    case SET_TIME:
+    case Ate401Cmd::SET_TIME:
       mode.time = (static_cast<uint32_t>(data.at(2)) << 0) |
                   (static_cast<uint32_t>(data.at(3)) << 8) |
                   (static_cast<uint32_t>(data.at(4)) << 16) |
@@ -185,3 +187,27 @@ Mode ate401_parser(std::vector<uint8_t>& data)
   return mode;
 }
 
+uint8_t* getPackStart(const void* data, size_t size, const std::string& substr) {
+  const uint8_t* bytes = static_cast<const uint8_t*>(data);
+  const uint8_t* subBytes = reinterpret_cast<const uint8_t*>(substr.data());
+  size_t subSize = substr.size();
+
+  for (size_t i = 0; i < size; ++i) {
+    if (bytes[i] == subBytes[0] && i + subSize < size) {
+      if (std::memcmp(&bytes[i], subBytes, subSize) == 0) {
+        uint8_t len = bytes[i + subSize] + 2; // +2 without crc
+        uint8_t crc = calculateCRC8(&bytes[i], len);
+
+        if (crc == bytes[i + subSize + 3]) {
+          std::cout << "CRC OK = 0x" << std::hex << static_cast<int>(crc) << std::endl;
+          return const_cast<uint8_t*>(&bytes[i]);
+        }
+        else {
+          i = i + subSize - 1;
+        }
+      }
+    }
+  }
+
+  return nullptr;
+}

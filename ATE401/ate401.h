@@ -101,3 +101,4 @@ std::vector<uint8_t> packed(const void* args, size_t size);
 std::vector<uint8_t> unpacked(std::vector<uint8_t>& data);
 Mode ate401_parser(std::vector<uint8_t>& data);
 std::vector<uint8_t> ack(uint8_t cmd, ATE401State& state);
+uint8_t* getPackStart(const void* data, size_t size, const std::string& substr);
