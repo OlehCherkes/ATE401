@@ -86,10 +86,10 @@ Examples of using memmory area
   [0x0005 /*BUZZER*/, 1 /*LENGTH*/]
   [0x0007 /*LED_RED*/, 2 /*LENGTH*/]
   [0x0009 /*LED_GREEN*/, 2 /*LENGTH*/]
-  [0x00011 /*LED_BLUE*/, 2 /*LENGTH*/]
-  [0x00013 /*VOLTAGE_TP3*/, 2 /*LENGTH*/]
-  [0x00015 /*VOLTAGE_TP13*/, 2 /*LENGTH*/]
-  [0x00017 /*VOLTAGE_TP18*/, 2 /*LENGTH*/]
+  [0x0011 /*LED_BLUE*/, 2 /*LENGTH*/]
+  [0x0013 /*VOLTAGE_TP3*/, 2 /*LENGTH*/]
+  [0x0015 /*VOLTAGE_TP13*/, 2 /*LENGTH*/]
+  [0x0017 /*VOLTAGE_TP18*/, 2 /*LENGTH*/]
   [0x0200 /*START_TIME_CALIBRATION*/, 1 /*LENGTH*/]
 ```
 ```markdown
