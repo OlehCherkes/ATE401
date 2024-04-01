@@ -90,14 +90,10 @@ Read byte.
 
 To check the TXD line in ip401 EEPROM sets 1 byte using test equipment (I2C), and then reads this byte using the UART. TFor checking bytes are compared.
 ```markdown
-  [MAGIC:3][LENGTH:1][TXD:1][CRC8:1]
+  [MAGIC:3][LENGTH:1][TXD:1][CHAR:1][CRC8:1]
 
   ex:
-  TXD ON
-  ['#', '@', '!', 4 /*LENGTH*/, 0x01 /*TXD*/, 1 /*STATE*/, crc8]
-
-  TXD OFF
-  ['#', '@', '!', 4 /*LENGTH*/, 0x01 /*TXD*/, 0 /*STATE*/, crc8]
+  ['#', '@', '!', 4 /*LENGTH*/, 0x01 /*TXD*/, 'B', crc8]
 ```
 ---------------------------------
 
@@ -108,12 +104,12 @@ Read pin state.
 
 RTE pin sets to LOW or HIGH via the test equipment, then ip401 reads the input measurement result.
 ```markdown
-  [MAGIC:3][LENGTH:1][RTE:1][CRC8:1]
+  [MAGIC:3][LENGTH:1][RTE:1][STATE:1][CRC8:1]
 
   ex:
   RTE ON
   ['#', '@', '!', 4 /*LENGTH*/, 0x02 /*RTE*/, 1 /*STATE*/, crc8]
-  
+
   RTE OFF
   ['#', '@', '!', 4 /*LENGTH*/, 0x02 /*RTE*/, 0 /*STATE*/, crc8]
 ```
@@ -126,7 +122,7 @@ Read pin state.
 
 DC pin sets to LOW or HIGH via the test equipment, then ip401 reads the input measurement result.
 ```markdown
-  [MAGIC:3][LENGTH:1][DC:1][CRC8:1]
+  [MAGIC:3][LENGTH:1][DC:1][STATE:1][CRC8:1]
 
   ex:
   DC ON
@@ -144,7 +140,7 @@ Read pin state.
 
 TMP pin sets to LOW or HIGH via the test equipment, then ip401 reads the input measurement result.
 ```markdown
-  [MAGIC:3][LENGTH:1][TMP:1][CRC8:1]
+  [MAGIC:3][LENGTH:1][TMP:1][STATE:1][CRC8:1]
 
   ex:
   TMP ON
@@ -162,7 +158,7 @@ Read pin state.
 
 BUTTON pin sets to LOW or HIGH via the test equipment, then ip401 reads the input measurement result.
 ```markdown
-  [MAGIC:3][LENGTH:1][BUTTON:1][CRC8:1]
+  [MAGIC:3][LENGTH:1][BUTTON:1][STATE:1][CRC8:1]
 
   ex:
   ON
