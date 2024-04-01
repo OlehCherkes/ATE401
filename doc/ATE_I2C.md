@@ -113,6 +113,7 @@ RTE pin sets to LOW or HIGH via the test equipment, then ip401 reads the input m
   ex:
   RTE ON
   ['#', '@', '!', 4 /*LENGTH*/, 0x02 /*RTE*/, 1 /*STATE*/, crc8]
+  
   RTE OFF
   ['#', '@', '!', 4 /*LENGTH*/, 0x02 /*RTE*/, 0 /*STATE*/, crc8]
 ```
