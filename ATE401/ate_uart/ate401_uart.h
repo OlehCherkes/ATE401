@@ -11,21 +11,21 @@ extern struct ATE401_uart state;
 extern struct Esp2MspBlink interval;
 
 // comands
-  enum class Pi401Cmd : uint8_t
-  {
-    ECHO       = 0x00,
-    ACK        = 0x01,
-    TEST_MODE  = 0x02,
-    SET_TIME   = 0x03,
-    RXD        = 0x04,
-    OUT        = 0x05,
-    REL        = 0x06,
-    BUZZER     = 0x07,
-    LED_RED    = 0x08,
-    LED_GREEN  = 0x09,
-    LED_BLUE   = 0x0A,
-    WIFI_CRED  = 0x0B,
-  };
+enum class Pi401Cmd : uint8_t
+{
+  ECHO       = 0x00,
+  ACK        = 0x01,
+  TEST_MODE  = 0x02,
+  SET_TIME   = 0x03,
+  RXD        = 0x04,
+  OUT        = 0x05,
+  REL        = 0x06,
+  BUZZER     = 0x07,
+  LED_RED    = 0x08,
+  LED_GREEN  = 0x09,
+  LED_BLUE   = 0x0A,
+  WIFI_CRED  = 0x0B,
+};
 
 enum class ATE401Indicate : uint8_t
 {

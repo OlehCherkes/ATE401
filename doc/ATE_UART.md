@@ -164,7 +164,7 @@ To test the RXD line in ip401 EEPROM sets 1 byte via UART, and then this byte is
   [MAGIC:3][LENGTH:1][RXD:1][PARAM:1][CRC8:1]
 
   ex:
-  ['#', '@', '!', 4 /*LENGTH*/, 0x05 /*RXD*/, 'A' /*PARAM*/, crc8]
+  ['#', '@', '!', 4 /*LENGTH*/, 0x04 /*RXD*/, 'A' /*PARAM*/, crc8]
 ```
 * PARAM
     * 1 char
@@ -181,10 +181,10 @@ OUT pin sets to LOW or HIGH state, then test equipment takes measurements.
 
   ex:
   OUT ON
-  ['#', '@', '!', 4 /*LENGTH*/, 0x06 /*OUT*/, 1 /*STATE*/, crc8]
+  ['#', '@', '!', 4 /*LENGTH*/, 0x05 /*OUT*/, 1 /*STATE*/, crc8]
 
   OUT OFF
-  ['#', '@', '!', 4 /*LENGTH*/, 0x06 /*OUT*/, 0 /*STATE*/, crc8]
+  ['#', '@', '!', 4 /*LENGTH*/, 0x05 /*OUT*/, 0 /*STATE*/, crc8]
 ```
 * STATE
     * OFF = 0
@@ -202,10 +202,10 @@ REL pin sets to LOW or HIGH state, then test equipment takes measurements.
 
   ex:
   REL ON
-  ['#', '@', '!', 4 /*LENGTH*/, 0x09 /*REL*/, 1 /*STATE*/, crc8]
+  ['#', '@', '!', 4 /*LENGTH*/, 0x06 /*REL*/, 1 /*STATE*/, crc8]
 
   REL OFF
-  ['#', '@', '!', 4 /*LENGTH*/, 0x09 /*REL*/, 0 /*STATE*/, crc8]
+  ['#', '@', '!', 4 /*LENGTH*/, 0x06 /*REL*/, 0 /*STATE*/, crc8]
 ```
 * STATE
     * OFF = 0
@@ -223,10 +223,10 @@ BUZZER pin sets state, then test equipment takes measurements.
 
   ex:
   BUZZER ON
-  ['#', '@', '!', 4 /*LENGTH*/, 0x0C /*BUZZER*/, 1 /*STATE*/, crc8]
+  ['#', '@', '!', 4 /*LENGTH*/, 0x07 /*BUZZER*/, 1 /*STATE*/, crc8]
 
   BUZZER OFF
-  ['#', '@', '!', 4 /*LENGTH*/, 0x0C /*BUZZER*/, 0 /*STATE*/, crc8]
+  ['#', '@', '!', 4 /*LENGTH*/, 0x07 /*BUZZER*/, 0 /*STATE*/, crc8]
 ```
 * STATE
     * OFF = 0
@@ -240,10 +240,10 @@ BUZZER pin sets state, then test equipment takes measurements.
 
   ex:
   BUZZER PWM
-  ['#', '@', '!', 5 /*LENGTH*/, 0x0C /*BUZZER*/, 2 /*STATE*/, 6 /*PROPERTIES*/, crc8]
+  ['#', '@', '!', 5 /*LENGTH*/, 0x07 /*BUZZER*/, 2 /*STATE*/, 6 /*PROPERTIES*/, crc8]
 
   BUZZER BLINK
-  ['#', '@', '!', 5 /*LENGTH*/, 0x0C /*BUZZER*/, 3 /*STATE*/, 6 /*PROPERTIES*/, crc8]
+  ['#', '@', '!', 5 /*LENGTH*/, 0x07 /*BUZZER*/, 3 /*STATE*/, 6 /*PROPERTIES*/, crc8]
 ```
 
 * PROPERTIES
@@ -265,10 +265,10 @@ LED_RED pin sets to LOW or HIGH state, then test equipment takes measurements.
 
   ex:
   LED_RED ON
-  ['#', '@', '!', 4 /*LENGTH*/, 0x0D /*LED_RED*/, 1 /*STATE*/, crc8]
+  ['#', '@', '!', 4 /*LENGTH*/, 0x08 /*LED_RED*/, 1 /*STATE*/, crc8]
 
   LED_RED OFF
-  ['#', '@', '!', 4 /*LENGTH*/, 0x0D /*LED_RED*/, 0 /*STATE*/, crc8]
+  ['#', '@', '!', 4 /*LENGTH*/, 0x08 /*LED_RED*/, 0 /*STATE*/, crc8]
 ```
 * STATE
     * OFF = 0
@@ -286,10 +286,10 @@ LED_RED pin sets to LOW or HIGH state, then test equipment takes measurements.
 
   ex:
   LED_GREEN ON
-  ['#', '@', '!', 4 /*LENGTH*/, 0x0E /*LED_GREEN*/, 1 /*STATE*/, crc8]
+  ['#', '@', '!', 4 /*LENGTH*/, 0x09 /*LED_GREEN*/, 1 /*STATE*/, crc8]
 
   LED_GREEN OFF
-  ['#', '@', '!', 4 /*LENGTH*/, 0x0E /*LED_GREEN*/, 0 /*STATE*/, crc8]
+  ['#', '@', '!', 4 /*LENGTH*/, 0x09 /*LED_GREEN*/, 0 /*STATE*/, crc8]
 ```
 * STATE
     * OFF = 0
@@ -307,10 +307,10 @@ LED_RED pin sets to LOW or HIGH state, then test equipment takes measurements.
 
   ex:
   LED_BLUE ON
-  ['#', '@', '!', 4 /*LENGTH*/, 0x0F /*LED_BLUE*/, 1 /*STATE*/, crc8]
+  ['#', '@', '!', 4 /*LENGTH*/, 0x0A /*LED_BLUE*/, 1 /*STATE*/, crc8]
 
   LED_BLUE OFF
-  ['#', '@', '!', 4 /*LENGTH*/, 0x0F /*LED_BLUE*/, 0 /*STATE*/, crc8]
+  ['#', '@', '!', 4 /*LENGTH*/, 0x0A /*LED_BLUE*/, 0 /*STATE*/, crc8]
 ```
 * STATE
     * OFF = 0
@@ -328,7 +328,7 @@ If the connection is successful, ip401 returns the IP address.
 
   ex:
   WIFI_CRED: AP = 'ITV', PASSWORD = 'PSWD'
-  ['#', '@', '!', 11 /*LENGTH*/, 0x10 /*WIFI_CRED*/, 'I', 'T', 'V', 0x00 /*NTS*/, 'P', 'S', 'W', 'D', 0x00 /*NTS*/, crc8]
+  ['#', '@', '!', 11 /*LENGTH*/, 0xB /*WIFI_CRED*/, 'I', 'T', 'V', 0x00 /*NTS*/, 'P', 'S', 'W', 'D', 0x00 /*NTS*/, crc8]
 ```
   * NTS - 0x00 "null terminated string"
 ---------------------------------
@@ -336,7 +336,7 @@ If the connection is successful, ip401 returns the IP address.
 <a id="chapter-16"></a>
 Reply
 ===============================================================================================================================
-Upon successful delivery and reading of the command, the testing equipment provides a response comand ACK indicating either success or failure.
+Upon successful delivery and reading of the command, the testing equipment provides a response comand ACK indicating either success or failure. If the Raspberry Pi does not receive a response, the command is sent again.
 
 <a id="chapter-100"></a>
 The data will come in the form of a structure:
@@ -390,7 +390,7 @@ Optional structures
 ===============================================================================================================================
 
 ```c++
-  enum class PiATE401Cmd : uint8_t
+  enum class Pi401Cmd : uint8_t
   {
     ECHO       = 0x00,
     ACK        = 0x01,

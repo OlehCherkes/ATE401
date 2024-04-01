@@ -10,17 +10,16 @@ Permission is hereby granted, to the employees of U-Prox company.
 * [Transport part](#chapter-1)
 * [Command part](#chapter-2)
 * [Examples of using commands](#chapter-3)
-  * [ECHO](#chapter-4)
-  * [ACK](#chapter-5)
-  * [TXD](#chapter-6)
-  * [RTE](#chapter-7)
-  * [DC](#chapter-8)
-  * [TMP](#chapter-9)
-  * [BUTTON](#chapter-10)
+  * [ACK](#chapter-4)
+  * [TXD](#chapter-5)
+  * [RTE](#chapter-6)
+  * [DC](#chapter-7)
+  * [TMP](#chapter-8)
+  * [BUTTON](#chapter-9)
   
-* [Reply](#chapter-11)
-* [Test points](#chapter-12)
-* [Optional structures](#chapter-13)
+* [Reply](#chapter-10)
+* [Test points](#chapter-11)
+* [Optional structures](#chapter-12)
 
 <a id="chapter-0"></a>
 Overview
@@ -45,13 +44,12 @@ Commands part
 ===============================================================================================================================
 
 ```
-  ECHO              = 0x00
-  ACK               = 0x01
-  TXD               = 0x02
-  RTE               = 0x03
-  DC                = 0x04
-  TMP               = 0x05
-  BUTTON            = 0x06
+  ACK               = 0x00
+  TXD               = 0x01
+  RTE               = 0x02
+  DC                = 0x03
+  TMP               = 0x04
+  BUTTON            = 0x05
   ```
 
 <a id="chapter-3"></a>
@@ -59,19 +57,7 @@ Examples of using commands
 ===============================================================================================================================
 
 <a id="chapter-4"></a>
-**ECHO**              0x00
-
-Checking the data transmission.
-```markdown
-  [MAGIC:3][LENGTH:1][ECHO:1][CRC8:1]
-
-  ex:
-  ['#', '@', '!', 3 /*LENGTH*/, 0x00 /*ECHO*/, crc8]
-```
----------------------------------
-
-<a id="chapter-5"></a>
-**ACK**              0x01
+**ACK**              0x00
 
 After sending any command, the device under test sends a response with a description of the state of the device, various parameters and flags.
 ```markdown
@@ -98,8 +84,8 @@ After sending any command, the device under test sends a response with a descrip
     *voltage TP3, TP13, TP18 - measured automatically
 ---------------------------------
 
-<a id="chapter-6"></a>
-**TXD**         0x02
+<a id="chapter-5"></a>
+**TXD**         0x01
 
 Read byte.
 
@@ -112,8 +98,8 @@ To check the TXD line in ip401 EEPROM sets 1 byte using test equipment (I2C), an
 ```
 ---------------------------------
 
-<a id="chapter-7"></a>
-**RTE**         0x03
+<a id="chapter-6"></a>
+**RTE**         0x02
 
 Read pin state.
 
@@ -126,8 +112,8 @@ RTE pin sets to LOW or HIGH via the test equipment, then ip401 reads the input m
 ```
 ---------------------------------
 
-<a id="chapter-8"></a>
-**DC**         0x04
+<a id="chapter-7"></a>
+**DC**         0x03
 
 Read pin state.
 
@@ -140,8 +126,8 @@ DC pin sets to LOW or HIGH via the test equipment, then ip401 reads the input me
 ```
 ---------------------------------
 
-<a id="chapter-9"></a>
-**TMP**         0x05
+<a id="chapter-8"></a>
+**TMP**         0x04
 
 Read pin state.
 
@@ -154,8 +140,8 @@ TMP pin sets to LOW or HIGH via the test equipment, then ip401 reads the input m
 ```
 ---------------------------------
 
-<a id="chapter-10"></a>
-**BUTTON**         0x06
+<a id="chapter-9"></a>
+**BUTTON**         0x05
 
 Read pin state.
 
@@ -168,7 +154,7 @@ BUTTON pin sets to LOW or HIGH via the test equipment, then ip401 reads the inpu
 ```
 ---------------------------------
 
-<a id="chapter-11"></a>
+<a id="chapter-10"></a>
 Reply
 ===============================================================================================================================
 Upon successful delivery and reading of the command, the testing equipment provides a response comand ACK indicating either success or failure.
@@ -176,9 +162,8 @@ Upon successful delivery and reading of the command, the testing equipment provi
 <a id="chapter-100"></a>
 The data will come in the form of a structure:
 ```c++
-struct ATE401State {
+struct ATE401_i2c {
     uint16_t version;
-    uint32_t time;
     uint8_t rxd;
     uint8_t output;
     uint8_t rellay;
@@ -192,7 +177,7 @@ struct ATE401State {
   };
 ```
 
-<a id="chapter-12"></a>
+<a id="chapter-11"></a>
 Test points
 ===============================================================================================================================
 The value of the ip401 gpio outputs is measured by the test equipment, after which the data can be transferred via I2C to the Raspberry Pi.
@@ -224,20 +209,19 @@ The value of the ip401 gpio outputs is measured by the test equipment, after whi
   LED - RED, GREEN and BLUE (send command on/off via UART, read value via I2C)
 ```
 
-<a id="chapter-13"></a>
+<a id="chapter-12"></a>
 Optional structures
 ===============================================================================================================================
 
 ```c++
-  enum class PiATE401Cmd : uint8_t
+  enum class ATE401Cmd : uint8_t
   {
-    ECHO       = 0x00,
-    ACK        = 0x01,
-    TXD        = 0x02,
-    RTE        = 0x03,
-    DC         = 0x04,
-    TMP        = 0x05,
-    BUTTON     = 0x06,
+    ACK        = 0x00,
+    TXD        = 0x01,
+    RTE        = 0x02,
+    DC         = 0x03,
+    TMP        = 0x04,
+    BUTTON     = 0x05,
   };
 ```
 ```c++

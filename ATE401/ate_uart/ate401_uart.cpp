@@ -141,6 +141,33 @@ std::vector<uint8_t> ack(uint8_t cmd, ATE401_uart& state)
   return data;
 }
 
+uint8_t* getPackStart(const void* data, size_t size, const std::string& substr) {
+  const uint8_t* bytes = static_cast<const uint8_t*>(data);
+  const uint8_t* subBytes = reinterpret_cast<const uint8_t*>(substr.data());
+  size_t subSize = substr.size();
+
+  size_t i = 0;
+  while (i < size) {
+    if (bytes[i] == subBytes[0] && i + subSize < size) {
+      if (std::memcmp(&bytes[i], subBytes, subSize) == 0) {
+        uint8_t len = bytes[i + subSize] - 1; // -1 without crc
+        uint8_t crc = calculateCRC8(&bytes[i], len + subSize);
+
+        if (crc == bytes[i + subSize + len]) {
+          std::cout << "CRC OK = 0x" << std::hex << static_cast<int>(crc) << std::endl;
+          return const_cast<uint8_t*>(&bytes[i]);
+        }
+        else {
+          i = i + subSize - 1; // -1 index start from 0
+        }
+      }
+    }
+    ++i;
+  }
+
+  return nullptr;
+}
+
 #if 0
 Mode ate401_parser(std::vector<uint8_t>& data)
 {
@@ -189,30 +216,3 @@ Mode ate401_parser(std::vector<uint8_t>& data)
   return mode;
 }
 #endif
-
-uint8_t* getPackStart(const void* data, size_t size, const std::string& substr) {
-  const uint8_t* bytes = static_cast<const uint8_t*>(data);
-  const uint8_t* subBytes = reinterpret_cast<const uint8_t*>(substr.data());
-  size_t subSize = substr.size();
-
-  size_t i = 0;
-  while (i < size) {
-    if (bytes[i] == subBytes[0] && i + subSize < size) {
-      if (std::memcmp(&bytes[i], subBytes, subSize) == 0) {
-        uint8_t len = bytes[i + subSize] - 1; // -1 without crc
-        uint8_t crc = calculateCRC8(&bytes[i], len + subSize);
-
-        if (crc == bytes[i + subSize + len]) {
-          std::cout << "CRC OK = 0x" << std::hex << static_cast<int>(crc) << std::endl;
-          return const_cast<uint8_t*>(&bytes[i]);
-        }
-        else {
-          i = i + subSize - 1; // -1 index start from 0
-        }
-      }
-    }
-    ++i;
-  }
-
-  return nullptr;
-}
