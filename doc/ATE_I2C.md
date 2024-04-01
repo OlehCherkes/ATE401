@@ -64,12 +64,11 @@ After sending any command, the device under test sends a response with a descrip
   [MAGIC:3][LENGTH:1][ACK:1][ATE401State:sizeoff(ATE401State)][CRC8:1]
 
   ex:
-  ['#', '@', '!', 3 + sizeof(ATE401State) /*LENGTH*/, 0x01 /*ACK*/, [ATE401State : sizeof(ATE401State)], crc8]
+  ['#', '@', '!', 3 + sizeof(ATE401State) /*LENGTH*/, 0x00 /*ACK*/, [ATE401State : sizeof(ATE401State)], crc8]
 ```
 
 [ATE401State structure ](#chapter-100)
   - Version
-  - Time
   - RXD
   - OUT
   - REL
@@ -94,7 +93,11 @@ To check the TXD line in ip401 EEPROM sets 1 byte using test equipment (I2C), an
   [MAGIC:3][LENGTH:1][TXD:1][CRC8:1]
 
   ex:
-  ['#', '@', '!', 3 /*LENGTH*/, 0x04 /*TXD*/, crc8]
+  TXD ON
+  ['#', '@', '!', 4 /*LENGTH*/, 0x01 /*TXD*/, 1 /*STATE*/, crc8]
+
+  TXD OFF
+  ['#', '@', '!', 4 /*LENGTH*/, 0x01 /*TXD*/, 0 /*STATE*/, crc8]
 ```
 ---------------------------------
 
@@ -108,7 +111,10 @@ RTE pin sets to LOW or HIGH via the test equipment, then ip401 reads the input m
   [MAGIC:3][LENGTH:1][RTE:1][CRC8:1]
 
   ex:
-  ['#', '@', '!', 3 /*LENGTH*/, 0x07 /*RTE*/, crc8]
+  RTE ON
+  ['#', '@', '!', 4 /*LENGTH*/, 0x02 /*RTE*/, 1 /*STATE*/, crc8]
+  RTE OFF
+  ['#', '@', '!', 4 /*LENGTH*/, 0x02 /*RTE*/, 0 /*STATE*/, crc8]
 ```
 ---------------------------------
 
@@ -122,7 +128,11 @@ DC pin sets to LOW or HIGH via the test equipment, then ip401 reads the input me
   [MAGIC:3][LENGTH:1][DC:1][CRC8:1]
 
   ex:
-  ['#', '@', '!', 3 /*LENGTH*/, 0x08 /*DC*/, crc8]
+  DC ON
+  ['#', '@', '!', 4 /*LENGTH*/, 0x03 /*DC*/, 1 /*STATE*/, crc8]
+
+  DC OFF
+  ['#', '@', '!', 4 /*LENGTH*/, 0x03 /*DC*/, 0 /*STATE*/, crc8]
 ```
 ---------------------------------
 
@@ -136,7 +146,11 @@ TMP pin sets to LOW or HIGH via the test equipment, then ip401 reads the input m
   [MAGIC:3][LENGTH:1][TMP:1][CRC8:1]
 
   ex:
-  ['#', '@', '!', 3 /*LENGTH*/, 0x0A /*TMP*/, crc8]
+  TMP ON
+  ['#', '@', '!', 4 /*LENGTH*/, 0x04 /*TMP*/, 1 /*STATE*/, crc8]
+
+  TMP OFF
+  ['#', '@', '!', 4 /*LENGTH*/, 0x04 /*TMP*/, 0 /*STATE*/, crc8]
 ```
 ---------------------------------
 
@@ -150,14 +164,18 @@ BUTTON pin sets to LOW or HIGH via the test equipment, then ip401 reads the inpu
   [MAGIC:3][LENGTH:1][BUTTON:1][CRC8:1]
 
   ex:
-  ['#', '@', '!', 3 /*LENGTH*/, 0x0B /*BUTTON*/, crc8]
+  ON
+  ['#', '@', '!', 4 /*LENGTH*/, 0x05 /*BUTTON*/, 1 /*STATE*/, crc8]
+
+  OFF
+  ['#', '@', '!', 4 /*LENGTH*/, 0x05 /*BUTTON*/, 0 /*STATE*/, crc8]
 ```
 ---------------------------------
 
 <a id="chapter-10"></a>
-Reply
+Read data
 ===============================================================================================================================
-Upon successful delivery and reading of the command, the testing equipment provides a response comand ACK indicating either success or failure.
+If the data in the EEPROM has been updated, then you can read it in the following format.
 
 <a id="chapter-100"></a>
 The data will come in the form of a structure:
