@@ -8,18 +8,13 @@ Permission is hereby granted, to the employees of U-Prox company.
 
 * [Overview](#chapter-0)
 * [Transport part](#chapter-1)
-* [Command part](#chapter-2)
-* [Examples of using commands](#chapter-3)
-  * [ACK](#chapter-4)
-  * [TXD](#chapter-5)
-  * [RTE](#chapter-6)
-  * [DC](#chapter-7)
-  * [TMP](#chapter-8)
-  * [BUTTON](#chapter-9)
-  
-* [Reply](#chapter-10)
-* [Test points](#chapter-11)
-* [Optional structures](#chapter-12)
+* [Memory area part](#chapter-2)
+  * [Read area](#chapter-3)
+  * [Write area](#chapter-4)
+  * [Commands are](#chapter-5)
+* [Examples of using memmory area](#chapter-6)
+* [Test points](#chapter-7)
+* [Optional structures](#chapter-8)
 
 <a id="chapter-0"></a>
 Overview
@@ -33,166 +28,84 @@ Transport part
 ===============================================================================================================================
 ```markdown
 Packets struct:
-  [MAGIC:3]               | magic bytes '#@!'
-  [LENGTH:1]              | length includes data size, LENGTH and CRC8 (without magic bytes)
+  [MEMORY AREA:1]         | EEPROM memory area
   [PAYLOAD:N]             | data N bytes
-  [CRC8:1]                | CRC8 from LENGTH to CRC8
 ```
 
 <a id="chapter-2"></a>
-Commands part
+Memory area part
 ===============================================================================================================================
-
-```
-  ACK               = 0x00
-  TXD               = 0x01
-  RTE               = 0x02
-  DC                = 0x03
-  TMP               = 0x04
-  BUTTON            = 0x05
-  ```
+EEPROM is divided into 3 memory areas, 
+- **0x0000** - area for reading the status of pins
+- **0x0100**  - area of setting the state of pins
+- **0x0200** - area commands
 
 <a id="chapter-3"></a>
-Examples of using commands
-===============================================================================================================================
-
+Reading pins status area start from **0x0000**
+```
+VERSION          0x0000
+RXD              0x0002
+OUTPUT           0x0003
+RELAY            0x0004
+BUZZER           0x0005
+LED_RED          0x0007
+LED_GREEN        0x0009
+LED_BLUE         0x0011
+VOLTAGE_TP3      0x0013
+VOLTAGE_TP13     0x0015
+VOLTAGE_TP18     0x0017
+```
 <a id="chapter-4"></a>
-**ACK**              0x00
-
-After sending any command, the device under test sends a response with a description of the state of the device, various parameters and flags.
-```markdown
-  [MAGIC:3][LENGTH:1][ACK:1][ATE401State:sizeoff(ATE401State)][CRC8:1]
-
-  ex:
-  ['#', '@', '!', 3 + sizeof(ATE401State) /*LENGTH*/, 0x00 /*ACK*/, [ATE401State : sizeof(ATE401State)], crc8]
+Writing pins status area start from **0x0100**
 ```
-
-[ATE401State structure ](#chapter-100)
-  - Version
-  - RXD
-  - OUT
-  - REL
-  - Buzzer
-  - Led Red 
-  - Led Green
-  - Led Blue
-  - Voltage TP3
-  - Voltage TP13
-  - Voltage TP18
-
-    *voltage TP3, TP13, TP18 - measured automatically
----------------------------------
-
+TXD              0x0100
+RTE              0x0101
+DC               0x0102
+TMP              0x0103
+BUTTON           0x0104
+```
 <a id="chapter-5"></a>
-**TXD**         0x01
-
-Read byte.
-
-To check the TXD line in ip401 EEPROM sets 1 byte using test equipment (I2C), and then reads this byte using the UART. TFor checking bytes are compared.
-```markdown
-  [MAGIC:3][LENGTH:1][TXD:1][CHAR:1][CRC8:1]
-
-  ex:
-  ['#', '@', '!', 4 /*LENGTH*/, 0x01 /*TXD*/, 'B', crc8]
+Commands area start from **0x0200**
 ```
----------------------------------
+START_TIME_CALIBRATION   0x0200
+```
 
 <a id="chapter-6"></a>
-**RTE**         0x02
+Examples of using memmory area
+===============================================================================================================================
 
-Read pin state.
-
-RTE pin sets to LOW or HIGH via the test equipment, then ip401 reads the input measurement result.
 ```markdown
-  [MAGIC:3][LENGTH:1][RTE:1][STATE:1][CRC8:1]
-
-  ex:
-  RTE ON
-  ['#', '@', '!', 4 /*LENGTH*/, 0x02 /*RTE*/, 1 /*STATE*/, crc8]
-
-  RTE OFF
-  ['#', '@', '!', 4 /*LENGTH*/, 0x02 /*RTE*/, 0 /*STATE*/, crc8]
+  [MEMORY AREA:1][SIZE:N]
 ```
----------------------------------
+```markdown
+  Read
+  [0x0000 /*VERSION*/, 2 /*LENGTH*/]
+  [0x0002 /*RXD*/, 1 /*LENGTH*/]
+  [0x0003 /*OUTPUT*/, 1 /*LENGTH*/]
+  [0x0004 /*RELAY*/, 1 /*LENGTH*/]
+  [0x0005 /*BUZZER*/, 1 /*LENGTH*/]
+  [0x0007 /*LED_RED*/, 2 /*LENGTH*/]
+  [0x0009 /*LED_GREEN*/, 2 /*LENGTH*/]
+  [0x00011 /*LED_BLUE*/, 2 /*LENGTH*/]
+  [0x00013 /*VOLTAGE_TP3*/, 2 /*LENGTH*/]
+  [0x00015 /*VOLTAGE_TP13*/, 2 /*LENGTH*/]
+  [0x00017 /*VOLTAGE_TP18*/, 2 /*LENGTH*/]
+  [0x0200 /*START_TIME_CALIBRATION*/, 1 /*LENGTH*/]
+```
+```markdown
+  Write
+  [0x0100 /*TXD*/, 1 /*LENGTH*/]
+  [0x0101 /*RTE*/, 1 /*LENGTH*/]
+  [0x0102 /*DC*/, 1 /*LENGTH*/]
+  [0x0103 /*TMP*/, 1 /*LENGTH*/]
+  [0x0104 /*BUTTON*/, 1 /*LENGTH*/]
+```
+```markdown
+  Commands
+  [0x0200 /*START_TIME_CALIBRATION*/, 1 /*LENGTH*/]
+```
 
 <a id="chapter-7"></a>
-**DC**         0x03
-
-Read pin state.
-
-DC pin sets to LOW or HIGH via the test equipment, then ip401 reads the input measurement result.
-```markdown
-  [MAGIC:3][LENGTH:1][DC:1][STATE:1][CRC8:1]
-
-  ex:
-  DC ON
-  ['#', '@', '!', 4 /*LENGTH*/, 0x03 /*DC*/, 1 /*STATE*/, crc8]
-
-  DC OFF
-  ['#', '@', '!', 4 /*LENGTH*/, 0x03 /*DC*/, 0 /*STATE*/, crc8]
-```
----------------------------------
-
-<a id="chapter-8"></a>
-**TMP**         0x04
-
-Read pin state.
-
-TMP pin sets to LOW or HIGH via the test equipment, then ip401 reads the input measurement result.
-```markdown
-  [MAGIC:3][LENGTH:1][TMP:1][STATE:1][CRC8:1]
-
-  ex:
-  TMP ON
-  ['#', '@', '!', 4 /*LENGTH*/, 0x04 /*TMP*/, 1 /*STATE*/, crc8]
-
-  TMP OFF
-  ['#', '@', '!', 4 /*LENGTH*/, 0x04 /*TMP*/, 0 /*STATE*/, crc8]
-```
----------------------------------
-
-<a id="chapter-9"></a>
-**BUTTON**         0x05
-
-Read pin state.
-
-BUTTON pin sets to LOW or HIGH via the test equipment, then ip401 reads the input measurement result.
-```markdown
-  [MAGIC:3][LENGTH:1][BUTTON:1][STATE:1][CRC8:1]
-
-  ex:
-  ON
-  ['#', '@', '!', 4 /*LENGTH*/, 0x05 /*BUTTON*/, 1 /*STATE*/, crc8]
-
-  OFF
-  ['#', '@', '!', 4 /*LENGTH*/, 0x05 /*BUTTON*/, 0 /*STATE*/, crc8]
-```
----------------------------------
-
-<a id="chapter-10"></a>
-Read data
-===============================================================================================================================
-If the data in the EEPROM has been updated, then you can read it in the following format.
-
-<a id="chapter-100"></a>
-The data will come in the form of a structure:
-```c++
-struct ATE401_i2c {
-    uint16_t version;
-    uint8_t rxd;
-    uint8_t output;
-    uint8_t rellay;
-    uint8_t buzzer;
-    uint8_t led_red;
-    uint8_t led_green;
-    uint8_t led_blue;
-    float voltage_TP3;
-    float voltage_TP13;
-    float voltage_TP18;
-  };
-```
-
-<a id="chapter-11"></a>
 Test points
 ===============================================================================================================================
 The value of the ip401 gpio outputs is measured by the test equipment, after which the data can be transferred via I2C to the Raspberry Pi.
@@ -224,21 +137,60 @@ The value of the ip401 gpio outputs is measured by the test equipment, after whi
   LED - RED, GREEN and BLUE (send command on/off via UART, read value via I2C)
 ```
 
-<a id="chapter-12"></a>
+<a id="chapter-8"></a>
 Optional structures
 ===============================================================================================================================
 
 ```c++
-  enum class ATE401Cmd : uint8_t
+  enum class EEPROM_READ : uint8_t
   {
-    ACK        = 0x00,
-    TXD        = 0x01,
-    RTE        = 0x02,
-    DC         = 0x03,
-    TMP        = 0x04,
-    BUTTON     = 0x05,
+    VERSION          = 0x0000,
+    RXD              = 0x0002,
+    OUTPUT           = 0x0003,
+    RELAY            = 0x0004,
+    BUZZER           = 0x0005,
+    LED_RED          = 0x0007,
+    LED_GREEN        = 0x0009,
+    LED_BLUE         = 0x0011,
+    VOLTAGE_TP3      = 0x0013,
+    VOLTAGE_TP13     = 0x0015,
+    VOLTAGE_TP18     = 0x0017,
   };
 ```
+
+```c++
+  enum class EEPROM_WRITE : uint8_t
+  {
+    TXD              = 0x0100,
+    RTE              = 0x0101,
+    DC               = 0x0102,
+    TMP              = 0x0103,
+    BUTTON           = 0x0104,
+  };
+```
+```c++
+  enum class EEPROM_CMD : uint8_t
+  {
+    START_TIME_CALIBRATION   = 0x0200,
+  };
+```
+
+```c++
+struct ATE401_i2c {
+    uint16_t version;
+    uint8_t rxd;
+    uint8_t output;
+    uint8_t rellay;
+    uint8_t buzzer;
+    uint8_t led_red;
+    uint8_t led_green;
+    uint8_t led_blue;
+    uint16_t voltage_TP3;
+    uint16_t voltage_TP13;
+    uint16_t voltage_TP18;
+  };
+```
+
 ```c++
   enum class ATE401Param : uint8_t
   {
