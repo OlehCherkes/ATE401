@@ -157,7 +157,7 @@ Optional structures
 ===============================================================================================================================
 
 ```c++
-  enum class EEPROM_READ_ADDR : uint8_t
+  enum class EEPROM_READ_ADDR : uint16_t
   {
     VERSION_L        = 0x0000,
     VERSION_H        = 0x0001,
@@ -181,7 +181,7 @@ Optional structures
 ```
 
 ```c++
-  enum class EEPROM_WRITE_ADDR : uint8_t
+  enum class EEPROM_WRITE_ADDR : uint16_t
   {
     TXD              = 0x0100,
     RTE              = 0x0101,
