@@ -28,7 +28,7 @@ Transport part
 ```markdown
 Packets struct:
   [MEMORY AREA:1]         | EEPROM memory area
-  [PAYLOAD:N]             | data N bytes
+  [STATE:1]               | write data
 ```
 
 <a id="chapter-2"></a>
@@ -36,80 +36,91 @@ Memory area part
 ===============================================================================================================================
 EEPROM is divided into 2 memory areas, 
 - **0x0000** - area for reading the status of pins
-- **0x0100**  - area of setting the state of pins
+- **0x0100** - area of setting the state of pins
 
 <a id="chapter-3"></a>
 Reading pins status area start from **0x0000**
-```
-VERSION_HI         0x0000
-VERSION_LOW        0x0001
 
-RXD                0x0002
-OUTPUT             0x0003
-RELAY              0x0004
-BUZZER             0x0005
+| Address | Register Name | R/W   |
+|   :---: |   :---:       | :---: |
+| 0x0000  | VERSION_L     | R     |
+| 0x0001  | VERSION_H     | R     |
+| 0x0002  | RXD           | R     |
+| 0x0003  | OUTPUT        | R     |
+| 0x0004  | RELAY         | R     |
+| 0x0005  | BUZZER        | R     |
+| 0x0006  | LED_RED_L     | R     |
+| 0x0007  | LED_RED_H     | R     |
+| 0x0008  | LED_GREEN_L   | R     |
+| 0x0009  | LED_GREEN_H   | R     |
+| 0x000A  | LED_BLUE_L    | R     |
+| 0x000B  | LED_BLUE_H    | R     |
+| 0x000C  | VOLT_TP3_L    | R     |
+| 0x000D  | VOLT_TP3_H    | R     |
+| 0x000E  | VOLT_TP13_L   | R     |
+| 0x000F  | VOLT_TP13_H   | R     |
+| 0x0010  | VOLT_TP18_L   | R     |
+| 0x0011  | VOLT_TP18_H   | R     |
 
-LED_RED_HI         0x0006
-LED_RED_LOW        0x0007
 
-LED_GREEN_HI       0x0008
-LED_GREEN_LOW      0x0009
-
-LED_BLUE_HIGH      0x000A
-LED_BLUE_LOW       0x000B
-
-VOLTAGE_TP3_HI     0x000C
-VOLTAGE_TP3_LOW    0x000D
-
-VOLTAGE_TP13_HI    0x000E
-VOLTAGE_TP13_LOW   0x000F
-
-VOLTAGE_TP18_HI    0x0010
-VOLTAGE_TP18_LOW   0x0011
-```
 <a id="chapter-4"></a>
 Writing pins status area start from **0x0100**
-```
-TXD              0x0100
-RTE              0x0101
-DC               0x0102
-TMP              0x0103
-BUTTON           0x0104
-CMD_STROB        0x0105
 
-```
+| Address | Register Name | R/W   |
+|   :---: |   :---:       | :---: |
+| 0x0100  | TXD           | W     |
+| 0x0101  | RTE           | W     |
+| 0x0102  | DC            | W     |
+| 0x0103  | TMP           | W     |
+| 0x0104  | BUTTON        | W     |
+| 0x0105  | CMD_STROB     | W     |
 
 <a id="chapter-6"></a>
 Examples of using memmory area
 ===============================================================================================================================
 
-```markdown
-  [MEMORY AREA:1][SIZE:N]
+Read data
 ```
+  [MEMORY AREA:1]
+
+  [0x0000 /*VERSION_L*/]
+  [0x0001 /*VERSION_H*/]
+  [0x0002 /*RXD*/]
+  [0x0003 /*OUTPUT*/]
+  [0x0004 /*RELAY*/]
+  [0x0005 /*BUZZER*/]
+  [0x0006 /*LED_RED_L*/]
+  [0x0007 /*LED_RED_H*/]
+  [0x0008 /*LED_GREEN_L*/]
+  [0x0009 /*LED_GREEN_H*/]
+  [0x000A /*LED_BLUE_L*/]
+  [0x000B /*LED_BLUE_H*/]
+  [0x000C /*VOLT_TP3_L*/]
+  [0x000D /*VOLT_TP3_H*/]
+  [0x000E /*VOLT_TP13_L*/]
+  [0x000F /*VOLT_TP13_H*/]
+  [0x0010 /*VOLT_TP18_L*/]
+  [0x0011 /*VOLT_TP18_H*/]
 ```
-  Read
-  [0x0000 /*VERSION*/, 2 /* LE LENGTH*/]
-  [0x0002 /*RXD*/, 1 /*LENGTH*/]
-  [0x0003 /*OUTPUT*/, 1 /*LENGTH*/]
-  [0x0004 /*RELAY*/, 1 /*LENGTH*/]
-  [0x0005 /*BUZZER*/, 1 /*LENGTH*/]
-  [0x0007 /*LED_RED*/, 2 / LE *LENGTH*/]
-  [0x0009 /*LED_GREEN*/, 2 /* LE LENGTH*/]
-  [0x0011 /*LED_BLUE*/, 2 /* LE LENGTH*/]
-  [0x0013 /*VOLTAGE_TP3*/, 2 /* LE LENGTH*/]
-  [0x0015 /*VOLTAGE_TP13*/, 2 /* LE LENGTH*/]
-  [0x0017 /*VOLTAGE_TP18*/, 2 /* LE LENGTH*/]
-  [0x0200 /*START_TIME_CALIBRATION*/, 1 /*LENGTH*/]
+
+Write data
+
 ```
+  [MEMORY AREA:1][STATE:1]
+
+  [0x0100 /*TXD*/, 1 /*STATE*/]
+  [0x0101 /*RTE*/, 0 /*STATE*/]
+  [0x0102 /*DC*/, 1 /*STATE*/]
+  [0x0103 /*TMP*/, 1 /*STATE*/]
+  [0x0104 /*BUTTON*/, 0 /*STATE*/]
+  [0x0105 /*CMD_STROB*/, 1 /*STATE*/]
 ```
-  Write
-  [0x0100 /*TXD*/, 1 /*LENGTH*/]
-  [0x0101 /*RTE*/, 1 /*LENGTH*/]
-  [0x0102 /*DC*/, 1 /*LENGTH*/]
-  [0x0103 /*TMP*/, 1 /*LENGTH*/]
-  [0x0104 /*BUTTON*/, 1 /*LENGTH*/]
-  [0x0105 /*CMD_STROB*/, 1 /*LENGTH*/]
-```
+
+* STATE
+    * OFF = 0
+    * ON = 1
+---------------------------------
+
 <a id="chapter-7"></a>
 Test points
 ===============================================================================================================================
@@ -149,24 +160,24 @@ Optional structures
 ```c++
   enum class EEPROM_READ_ADDR : uint8_t
   {
-    VERSION_HI       = 0x0000,
-    VERSION_LOW      = 0x0001,
+    VERSION_L        = 0x0000,
+    VERSION_H        = 0x0001,
     RXD              = 0x0002,
     OUTPUT           = 0x0003,
     RELAY            = 0x0004,
     BUZZER           = 0x0005,
-    LED_RED_HI       = 0x0006,
-    LED_RED_LOW      = 0x0007,
-    LED_GREEN_HI     = 0x0008,
-    LED_GREEN_LOW    = 0x0009,
-    LED_BLUE_HI      = 0x000A,
-    LED_BLUE_LOW     = 0x000B,
-    VOLTAGE_TP3_HI   = 0x000C,
-    VOLTAGE_TP3_LOW  = 0x000D,
-    VOLTAGE_TP13_HI  = 0x000E,
-    VOLTAGE_TP13_LOW = 0x000F,
-    VOLTAGE_TP18_HI  = 0x0010,
-    VOLTAGE_TP18_LOW = 0x0011,
+    LED_RED_L        = 0x0006,
+    LED_RED_H        = 0x0007,
+    LED_GREEN_H      = 0x0008,
+    LED_GREEN_L      = 0x0009,
+    LED_BLUE_L       = 0x000A,
+    LED_BLUE_H       = 0x000B,
+    VOLTAGE_TP3_L    = 0x000C,
+    VOLTAGE_TP3_H    = 0x000D,
+    VOLTAGE_TP13_L   = 0x000E,
+    VOLTAGE_TP13_H   = 0x000F,
+    VOLTAGE_TP18_L   = 0x0010,
+    VOLTAGE_TP18_H   = 0x0011,
   };
 ```
 
