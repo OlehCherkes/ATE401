@@ -13,7 +13,7 @@ Permission is hereby granted, to the employees of U-Prox company.
   * [Write](#chapter-4)
 * [Examples of using memmory area](#chapter-5)
 * [Test points](#chapter-6)
-* [Optional structures](#chapter-87)
+* [Optional structures](#chapter-7)
 
 <a id="chapter-0"></a>
 Overview
@@ -75,7 +75,7 @@ Writing pins status area start from **0x0100**
 | 0x0104  | BUTTON        | W     |
 | 0x0105  | CMD_STROB     | W     |
 
-<a id="chapter-6"></a>
+<a id="chapter-5"></a>
 Examples of using memmory area
 ===============================================================================================================================
 
@@ -102,9 +102,8 @@ Read data
   [0x0010 /*VOLT_TP18_L*/]
   [0x0011 /*VOLT_TP18_H*/]
 ```
-
+<a id="chapter-6"></a>
 Write data
-
 ```
   [MEMORY AREA:1][STATE:1]
 
